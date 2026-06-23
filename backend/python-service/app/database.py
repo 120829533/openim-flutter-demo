@@ -62,6 +62,10 @@ async def fetch(sql: str, args: Sequence[Any] = ()) -> list[dict]:
             return list(rows)
 
 
+# 别名，兼容 openim_compat 等模块的导入
+fetchall = fetch
+
+
 async def fetchone(sql: str, args: Sequence[Any] = ()) -> Optional[dict]:
     """执行查询，返回单行（dict）或 None。"""
     pool = get_pool()
