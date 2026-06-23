@@ -79,13 +79,17 @@ class Config {
     return ip ?? _host;
   }
 
+  // 以下 URL 指向我们自建的后端（Nginx 反向代理，端口 80/443）
+  // appAuthUrl / imApiUrl / chatTokenUrl → Nginx / → Python 服务（OpenIM Chat API 兼容层）
+  // imWsUrl → Nginx /ws → Java 服务 WebSocket
+
   static String get chatTokenUrl {
     String? url;
     var server = DataSp.getServerConfig();
     if (null != server) {
       url = server['chatTokenUrl'];
     }
-    return url ?? (_isIP ? "http://$_host:10009" : "https://$_host/chat");
+    return url ?? (_isIP ? "http://$_host" : "https://$_host");
   }
 
   static String get appAuthUrl {
@@ -94,7 +98,7 @@ class Config {
     if (null != server) {
       url = server['authUrl'];
     }
-    return url ?? (_isIP ? "http://$_host:10008" : "https://$_host/chat");
+    return url ?? (_isIP ? "http://$_host" : "https://$_host");
   }
 
   static String get imApiUrl {
@@ -103,7 +107,7 @@ class Config {
     if (null != server) {
       url = server['apiUrl'];
     }
-    return url ?? (_isIP ? 'http://$_host:10002' : "https://$_host/api");
+    return url ?? (_isIP ? 'http://$_host' : "https://$_host");
   }
 
   static String get imWsUrl {
@@ -112,7 +116,7 @@ class Config {
     if (null != server) {
       url = server['wsUrl'];
     }
-    return url ?? (_isIP ? "ws://$_host:10001" : "wss://$_host/msg_gateway");
+    return url ?? (_isIP ? "ws://$_host/ws" : "wss://$_host/ws");
   }
 
   static int get logLevel {
