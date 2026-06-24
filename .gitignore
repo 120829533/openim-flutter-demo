@@ -1,49 +1,86 @@
-# Miscellaneous
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# ===== Java =====
+target/
 *.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+*.jar
+*.war
+*.ear
+hs_err_pid*
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
+# ===== Flutter/Dart/Pub =====
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
+**/build/
 /coverage/
-android/.gradle/
-android/app/debug
-android/app/profile
-android/app/release
+client/android/.gradle/
+client/android/local.properties
+client/android/app/debug
+client/android/app/profile
+client/android/app/release
 
-# Symbolication related
+# ===== iOS/Xcode =====
+client/ios/**/*.mode1v3
+client/ios/**/*.mode2v3
+client/ios/**/*.moved-aside
+client/ios/**/*.pbxuser
+client/ios/**/*.perspectivev3
+client/ios/**/*sync/
+client/ios/**/.sconsign.dblite
+client/ios/**/.tags*
+client/ios/**/.vagrant/
+client/ios/**/DerivedData/
+client/ios/**/Icon?
+client/ios/**/Pods/
+client/ios/**/.symlinks/
+client/ios/**/profile
+client/ios/**/xcuserdata
+client/ios/.generated/
+client/ios/Flutter/App.framework
+client/ios/Flutter/Flutter.framework
+client/ios/Flutter/Flutter.podspec
+client/ios/Flutter/Generated.xcconfig
+client/ios/Flutter/app.flx
+client/ios/Flutter/app.zip
+client/ios/Flutter/flutter_assets/
+client/ios/Flutter/flutter_export_environment.sh
+client/ios/ServiceDefinitions.json
+client/ios/Runner/GeneratedPluginRegistrant.*
+
+# ===== Docker =====
+server/docker-data/
+server/mysql/data/
+server/redis/data/
+server/minio/data/
+
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== 日志 =====
+*.log
+logs/
+
+# ===== Symbolication/Obfuscation =====
 app.*.symbols
-
-# Obfuscation related
 app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
