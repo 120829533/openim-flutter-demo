@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:openim_common/openim_common.dart';
@@ -101,48 +102,52 @@ class ImageUtil {
     bool lowMemory = false,
     Widget? errorWidget,
     BorderRadius? borderRadius,
-  }) =>
-      ExtendedImage.file(
-        file,
-        width: width,
-        height: height,
-        fit: fit,
-        borderRadius: borderRadius,
-        cacheWidth: _calculateCacheWidth(width, cacheWidth, lowMemory),
-        cacheHeight: _calculateCacheHeight(height, cacheHeight, lowMemory),
-        clearMemoryCacheWhenDispose: clearMemoryCacheWhenDispose,
-        clearMemoryCacheIfFailed: true,
-        cacheRawData: true,
-        loadStateChanged: (ExtendedImageState state) {
-          switch (state.extendedImageLoadState) {
-            case LoadState.loading:
-              {
-                final ImageChunkEvent? loadingProgress = state.loadingProgress;
-                final double? progress = loadingProgress?.expectedTotalBytes != null
-                    ? loadingProgress!.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                    : null;
+  }) {
+    if (kIsWeb) {
+      return errorWidget ?? ImageRes.pictureError.toImage;
+    }
+    return ExtendedImage.file(
+      file,
+      width: width,
+      height: height,
+      fit: fit,
+      borderRadius: borderRadius,
+      cacheWidth: _calculateCacheWidth(width, cacheWidth, lowMemory),
+      cacheHeight: _calculateCacheHeight(height, cacheHeight, lowMemory),
+      clearMemoryCacheWhenDispose: clearMemoryCacheWhenDispose,
+      clearMemoryCacheIfFailed: true,
+      cacheRawData: true,
+      loadStateChanged: (ExtendedImageState state) {
+        switch (state.extendedImageLoadState) {
+          case LoadState.loading:
+            {
+              final ImageChunkEvent? loadingProgress = state.loadingProgress;
+              final double? progress = loadingProgress?.expectedTotalBytes != null
+                  ? loadingProgress!.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                  : null;
 
-                return SizedBox(
-                  width: 15.0,
-                  height: 15.0,
-                  child: loadProgress
-                      ? Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 1.5,
-                            value: progress,
-                          ),
-                        )
-                      : null,
-                );
-              }
-            case LoadState.completed:
-              return null;
-            case LoadState.failed:
-              state.imageProvider.evict();
-              return errorWidget ?? ImageRes.pictureError.toImage;
-          }
-        },
-      );
+              return SizedBox(
+                width: 15.0,
+                height: 15.0,
+                child: loadProgress
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.5,
+                          value: progress,
+                        ),
+                      )
+                    : null,
+              );
+            }
+          case LoadState.completed:
+            return null;
+          case LoadState.failed:
+            state.imageProvider.evict();
+            return errorWidget ?? ImageRes.pictureError.toImage;
+        }
+      },
+    );
+  }
 
   static int? _calculateCacheWidth(
     double? width,

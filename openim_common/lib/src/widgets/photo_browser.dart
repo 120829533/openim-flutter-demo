@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:media_kit/media_kit.dart';
@@ -158,7 +159,7 @@ class _MediaBrowserState extends State<MediaBrowser> with TickerProviderStateMix
                       tag: s.tag ?? s.thumbnail,
                       slideType: SlideType.onlyImage,
                       slidePagekey: slidePagekey,
-                      child: s.file != null && s.file!.existsSync()
+                      child: s.file != null && !kIsWeb && s.file!.existsSync()
                           ? ExtendedImage.file(
                               s.file!,
                               enableSlideOutPage: true,

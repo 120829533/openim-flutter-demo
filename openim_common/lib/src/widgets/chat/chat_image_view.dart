@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class ThumbnailViewer extends StatefulWidget {
@@ -27,7 +28,7 @@ class _ThumbnailViewerState extends State<ThumbnailViewer> {
       onLongPress: widget.onLongPress,
       child: Center(
         child: showThumbnail
-            ? (widget.thumbnailFile != null
+            ? (widget.thumbnailFile != null && !kIsWeb
                 ? ExtendedImage.file(
                     widget.thumbnailFile!,
                   )
@@ -43,7 +44,7 @@ class _ThumbnailViewerState extends State<ThumbnailViewer> {
                       return null;
                     },
                   ))
-            : (widget.imageFile != null
+            : (widget.imageFile != null && !kIsWeb
                 ? ExtendedImage.file(widget.imageFile!)
                 : ExtendedImage.network(
                     widget.imageUrl!,

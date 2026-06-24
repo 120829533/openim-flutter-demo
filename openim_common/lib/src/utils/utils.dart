@@ -159,6 +159,7 @@ class IMUtils {
   }
 
   static Future<File?> compressImageAndGetFile(File file, {int quality = 80}) async {
+    if (kIsWeb) return file;
     var path = file.path;
     var name = path.substring(path.lastIndexOf("/") + 1).toLowerCase();
 
