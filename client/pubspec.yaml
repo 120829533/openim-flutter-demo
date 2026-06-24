@@ -111,9 +111,6 @@ dev_dependencies:
   flutter_native_splash: ^2.2.19
   flutter_lints: ^6.0.0
 
-dependency_overrides:
-  extended_text_field:
-    path: extended_text_field_patched
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
