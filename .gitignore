@@ -1,49 +1,42 @@
-# Miscellaneous
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# ===== Java =====
+target/
 *.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+*.jar
+*.war
+*.ear
+hs_err_pid*
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
+# ===== IDE =====
 .idea/
+*.iml
+.vscode/
+*.swp
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# ===== OS =====
+.DS_Store
+Thumbs.db
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
-android/.gradle/
-android/app/debug
-android/app/profile
-android/app/release
+# ===== Docker =====
+docker-data/
+mysql/data/
+redis/data/
+minio/data/
 
-# Symbolication related
-app.*.symbols
+# ===== 环境变量（含敏感信息，按需取消注释）=====
+# .env
 
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# ===== 日志 =====
+*.log
+logs/
