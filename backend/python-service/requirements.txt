@@ -1,9 +1,0 @@
-fastapi
-uvicorn[standard]
-pydantic-settings
-aiomysql
-redis[hiredis]
-pyjwt
-bcrypt
-httpx
-python-multipart
