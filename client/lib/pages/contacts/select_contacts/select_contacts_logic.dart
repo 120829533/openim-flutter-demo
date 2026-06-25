@@ -12,10 +12,6 @@ enum SelAction {
 
   carte,
 
-  crateGroup,
-
-  addMember,
-
   recommend,
 }
 
@@ -58,25 +54,13 @@ class SelectContactsLogic extends GetxController implements OrganizationMultiSel
   @override
   bool get isMultiModel => action != SelAction.carte;
 
-  bool get hiddenGroup => action == SelAction.carte || action == SelAction.crateGroup || action == SelAction.addMember;
-
-  bool get hiddenConversations =>
-      action == SelAction.carte || action == SelAction.crateGroup || action == SelAction.addMember;
+  bool get hiddenConversations => action == SelAction.carte;
 
   Future<void> _queryConversationList() async {
     if (!hiddenConversations) {
-      final cons = Get.find<ConversationLogic>().list;
+      final cons = Get.find<ConversationLogic>().list.where((con) => !con.isGroupChat);
 
-      final futures = cons.map((con) async {
-        if (con.isGroupChat) {
-          final result = await OpenIM.iMManager.groupManager.isJoinedGroup(groupID: con.groupID!);
-          return result ? con : null;
-        }
-        return con.conversationType == ConversationType.notification ? null : con;
-      }).toList();
-
-      final results = await Future.wait(futures);
-      final filteredCons = results.where((con) => con != null).cast<ConversationInfo>().toList();
+      final filteredCons = cons.where((con) => con.conversationType != ConversationType.notification).toList();
 
       conversationList.addAll(filteredCons);
     }
@@ -84,9 +68,7 @@ class SelectContactsLogic extends GetxController implements OrganizationMultiSel
 
   static String? parseID(e) {
     if (e is ConversationInfo) {
-      return e.isSingleChat ? e.userID : e.groupID;
-    } else if (e is GroupInfo) {
-      return e.groupID;
+      return e.userID;
     } else if (e is UserInfo || e is FriendInfo || e is UserFullInfo) {
       return e.userID;
     } else {
@@ -97,8 +79,6 @@ class SelectContactsLogic extends GetxController implements OrganizationMultiSel
   static String? parseName(e) {
     if (e is ConversationInfo) {
       return e.showName;
-    } else if (e is GroupInfo) {
-      return e.groupName;
     } else if (e is UserInfo || e is FriendInfo || e is UserFullInfo) {
       return e.nickname;
     } else {
@@ -108,8 +88,6 @@ class SelectContactsLogic extends GetxController implements OrganizationMultiSel
 
   static String? parseFaceURL(e) {
     if (e is ConversationInfo) {
-      return e.faceURL;
-    } else if (e is GroupInfo) {
       return e.faceURL;
     } else if (e is UserInfo || e is FriendInfo || e is UserFullInfo) {
       return e.faceURL;
@@ -148,13 +126,7 @@ class SelectContactsLogic extends GetxController implements OrganizationMultiSel
 
   @override
   updateDefaultCheckedList(List<String> userIDList) async {
-    if (groupID != null) {
-      var list = await OpenIM.iMManager.groupManager.getGroupMembersInfo(
-        groupID: groupID!,
-        userIDList: userIDList,
-      );
-      defaultCheckedIDList.addAll(list.map((e) => e.userID!));
-    }
+    defaultCheckedIDList.addAll(userIDList);
   }
 
   String get checkedStrTips => checkedList.values.map(parseName).join('、');
@@ -166,13 +138,6 @@ class SelectContactsLogic extends GetxController implements OrganizationMultiSel
 
   Future<void> selectFromMyFriend() async {
     final result = AppNavigator.startSelectContactsFromFriends();
-    if (null != result) {
-      Get.back(result: result);
-    }
-  }
-
-  Future<void> selectFromMyGroup() async {
-    final result = AppNavigator.startSelectContactsFromGroup();
     if (null != result) {
       Get.back(result: result);
     }

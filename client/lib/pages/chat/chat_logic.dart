@@ -16,6 +16,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/controller/app_controller.dart';
 import '../../core/controller/im_controller.dart';
+import '../../core/cs_websocket.dart';
+import '../../core/cs_message_store.dart';
 import '../../core/im_callback.dart';
 import '../../routes/app_navigator.dart';
 import '../contacts/select_contacts/select_contacts_logic.dart';
@@ -107,6 +109,12 @@ class ChatLogic extends SuperController {
 
   final directionalUsers = <GroupMembersInfo>[].obs;
 
+  /// 是否为 CS 客服会话
+  bool _isCsConv = false;
+  StreamSubscription<CsStoreMessage>? _csNewMsgSub;
+
+  bool get isCsConversation => _isCsConv;
+
   bool isCurrentChat(Message message) {
     var senderId = message.sendID;
     var receiverId = message.recvID;
@@ -135,8 +143,11 @@ class ChatLogic extends SuperController {
 
   @override
   void onReady() {
-    _resetGroupAtType();
-    _clearUnreadCount();
+    // CS 会话不调用 OpenIM SDK 方法
+    if (!_isCsConv) {
+      _resetGroupAtType();
+      _clearUnreadCount();
+    }
 
     scrollController.addListener(() {
       focusNode.unfocus();
@@ -146,13 +157,42 @@ class ChatLogic extends SuperController {
 
   @override
   void onInit() {
-    var arguments = Get.arguments;
-    conversationInfo = arguments['conversationInfo'];
-    searchMessage = arguments['searchMessage'];
-    nickname.value = conversationInfo.showName ?? '';
-    faceUrl.value = conversationInfo.faceURL ?? '';
-    _initChatConfig();
-    _setSdkSyncDataListener();
+    try {
+      var arguments = Get.arguments;
+      conversationInfo = arguments['conversationInfo'];
+      searchMessage = arguments['searchMessage'];
+      nickname.value = conversationInfo.showName ?? '';
+      faceUrl.value = conversationInfo.faceURL ?? '';
+      _initChatConfig();
+      _setSdkSyncDataListener();
+
+      // 检测是否为 CS 客服会话（conversationID 以 cs_conv_ 开头）
+      final convId = conversationInfo.conversationID ?? '';
+      _isCsConv = convId.startsWith('cs_conv_');
+      if (_isCsConv) {
+        Logger.print('[Chat] CS 会话 detected: $convId');
+        // 加载 CS 缓存消息
+        final cached = CsMessageStore().getMessages(convId);
+        if (cached.isNotEmpty) {
+          messageList.assignAll(cached);
+          scrollBottom();
+        }
+        // 订阅新消息
+        _csNewMsgSub = CsMessageStore().onNewMessage.listen((event) {
+          if (event.conversationId == convId) {
+            Logger.print('[Chat] CS 新消息到聊天页: ${event.message.textElem?.content}');
+            final alreadyExists = messageList.any((m) => m.clientMsgID == event.message.clientMsgID);
+            if (!alreadyExists) {
+              messageList.add(event.message);
+              scrollBottom();
+            }
+          }
+        });
+      }
+    } catch (e, s) {
+      Logger.print('[Chat] onInit 异常: $e $s');
+      _isCsConv = false;
+    }
 
     conversationSub = imLogic.conversationChangedSubject.listen((value) {
       final obj = value.firstWhereOrNull((e) => e.conversationID == conversationInfo.conversationID);
@@ -417,6 +457,50 @@ class ChatLogic extends SuperController {
     log('send : ${json.encode(message)}');
     userId = IMUtils.emptyStrToNull(userId);
     groupId = IMUtils.emptyStrToNull(groupId);
+
+    // CS 客服会话：通过 CS WebSocket 发送
+    if (_isCsConv) {
+      if (addToUI) {
+        messageList.add(message);
+        scrollBottom();
+      }
+      _reset(message);
+      final content = message.textElem?.content ?? '';
+      final visitorUserId = userID;
+      Logger.print('[Chat] CS 发送消息: visitorUserId=$visitorUserId, convID=${conversationInfo.conversationID}');
+      if (visitorUserId == null || visitorUserId.isEmpty) {
+        Logger.print('[Chat] CS 发送失败: visitorUserId 为空');
+        _senFailed(message, null, null, Exception('visitorUserId 为空'), StackTrace.current);
+        _completed();
+        return Future.value();
+      }
+      // 构造与服务端一致的 conversation_id 格式：si_{sorted_id1}_{sorted_id2}
+      final csUserId = OpenIM.iMManager.userID;
+      final ids = [visitorUserId, csUserId]..sort();
+      final serverConvId = 'si_${ids[0]}_${ids[1]}';
+      Logger.print('[Chat] CS 发送消息 conversationId=$serverConvId');
+      CsWebSocketService().sendMessage(serverConvId, content);
+      Logger.print('[Chat] CS 消息已发送 via WS');
+
+      // 更新消息状态为发送成功，通知 UI
+      message.status = 2;
+      sendStatusSub.addSafely(MsgStreamEv<bool>(
+        id: message.clientMsgID!,
+        value: true,
+      ));
+
+      // 持久化到全局缓存，防止离开页面后消息丢失
+      CsMessageStore().addMessage(
+        conversationId: conversationInfo.conversationID,
+        senderId: OpenIM.iMManager.userID,
+        content: content,
+        messageId: message.clientMsgID!,
+      );
+
+      _completed();
+      return Future.value();
+    }
+
     if (null == userId && null == groupId ||
         userId == userID && userId != null ||
         groupId == groupID && groupId != null) {
@@ -663,7 +747,7 @@ class ChatLogic extends SuperController {
   Message indexOfMessage(int index, {bool calculate = true}) => IMUtils.calChatTimeInterval(
         messageList,
         calculate: calculate,
-      ).reversed.elementAt(index);
+      ).elementAt(index);
 
   ValueKey itemKey(Message message) => ValueKey(message.clientMsgID!);
 
@@ -686,6 +770,7 @@ class ChatLogic extends SuperController {
     joinedGroupAddedSub.cancel();
     joinedGroupDeletedSub.cancel();
     connectionSub.cancel();
+    _csNewMsgSub?.cancel();
 
     _debounce?.cancel();
     super.onClose();
@@ -703,10 +788,14 @@ class ChatLogic extends SuperController {
   }
 
   void _initChatConfig() async {
-    scaleFactor.value = DataSp.getChatFontSizeFactor();
-    var path = DataSp.getChatBackground(otherId) ?? '';
-    if (path.isNotEmpty && (await File(path).exists())) {
-      background.value = path;
+    try {
+      scaleFactor.value = DataSp.getChatFontSizeFactor();
+      var path = DataSp.getChatBackground(otherId) ?? '';
+      if (path.isNotEmpty && (await File(path).exists())) {
+        background.value = path;
+      }
+    } catch (e, s) {
+      Logger.print('[Chat] _initChatConfig 异常: $e $s');
     }
   }
 
@@ -920,20 +1009,20 @@ class ChatLogic extends SuperController {
   }
 
   Future<bool> onScrollToBottomLoad() async {
+    // CS 会话不使用 OpenIM SDK 加载历史消息
+    if (_isCsConv) return false;
+
     late List<Message> list;
     final result = await _fetchHistoryMessages();
     if (result.messageList == null || result.messageList!.isEmpty) {
       _getGroupInfoAfterLoadMessage();
-
       return false;
     }
     list = result.messageList!;
     if (_isFirstLoad) {
       _isFirstLoad = false;
-      // remove the message that has been timed down
       messageList.assignAll(list);
       scrollBottom();
-
       _getGroupInfoAfterLoadMessage();
     } else {
       messageList.insertAll(0, list);
@@ -943,6 +1032,9 @@ class ChatLogic extends SuperController {
   }
 
   Future<void> _loadHistoryForSyncEnd() async {
+    // CS 会话不使用 OpenIM SDK 加载历史消息
+    if (_isCsConv) return;
+
     final result = await OpenIM.iMManager.messageManager.getAdvancedHistoryMessageList(
       conversationID: conversationInfo.conversationID,
       count: messageList.length < _pageSize ? _pageSize : messageList.length,
@@ -1011,6 +1103,9 @@ class ChatLogic extends SuperController {
 
   @override
   void onResumed() {
-    _loadHistoryForSyncEnd();
+    // CS 会话不重新加载 OpenIM 历史
+    if (!_isCsConv) {
+      _loadHistoryForSyncEnd();
+    }
   }
 }

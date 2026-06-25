@@ -16,8 +16,6 @@ class ContactsLogic extends GetxController
 
   int get friendApplicationCount => homeLogic.unhandledFriendApplicationCount.value;
 
-  int get groupApplicationCount => homeLogic.unhandledGroupApplicationCount.value;
-
   @override
   void onInit() {
     PackageBridge.selectContactsBridge = this;
@@ -36,11 +34,7 @@ class ContactsLogic extends GetxController
 
   void newFriend() => AppNavigator.startFriendRequests();
 
-  void newGroup() => AppNavigator.startGroupRequests();
-
   void myFriend() => AppNavigator.startFriendList();
-
-  void myGroup() => AppNavigator.startGroupList();
 
   void searchContacts() => AppNavigator.startGlobalSearch();
 
@@ -76,11 +70,7 @@ class ContactsLogic extends GetxController
       );
 
   @override
-  scanOutGroupID(String groupID) => AppNavigator.startGroupProfilePanel(
-        groupID: groupID,
-        joinGroupMethod: null,
-        offAndToNamed: true,
-      );
+  scanOutGroupID(String groupID) {}
 
   @override
   scanOutUserID(String userID) => AppNavigator.startUserProfilePane(userID: userID, offAndToNamed: true);

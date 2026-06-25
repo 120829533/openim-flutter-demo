@@ -11,6 +11,7 @@ import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 import '../../core/controller/app_controller.dart';
 import '../../core/controller/im_controller.dart';
 import '../../core/cs_websocket.dart';
+import '../../core/cs_message_store.dart';
 import '../../core/im_callback.dart';
 import '../../routes/app_navigator.dart';
 import '../home/home_logic.dart';
@@ -102,21 +103,28 @@ class ConversationLogic extends GetxController {
     }
 
     final convId = 'cs_conv_${msg.senderId}';
+    final visitorName = _visitorNames[msg.senderId] ?? msg.senderId;
+
+    // 存储消息到全局缓存，供 ChatLogic 显示
+    CsMessageStore().addMessage(
+      conversationId: convId,
+      senderId: msg.senderId,
+      content: msg.content,
+      messageId: msg.messageId,
+    );
+
     final existing = _csConversations[convId];
     if (existing != null) {
-      // 更新已有会话
       existing.unreadCount = (existing.unreadCount ?? 0) + 1;
       existing.latestMsg = Message(
         sendID: msg.senderId,
-        senderNickname: _visitorNames[msg.senderId] ?? msg.senderId,
+        senderNickname: visitorName,
         contentType: MessageType.text,
         textElem: TextElem(content: msg.content),
         sendTime: DateTime.now().millisecondsSinceEpoch,
       );
       existing.latestMsgSendTime = DateTime.now().millisecondsSinceEpoch;
     } else {
-      // 新建会话
-      final visitorName = _visitorNames[msg.senderId] ?? msg.senderId;
       final avatar = _visitorAvatars[msg.senderId];
       final newConv = ConversationInfo(
         conversationID: convId,
@@ -136,7 +144,6 @@ class ConversationLogic extends GetxController {
       );
       _csConversations[convId] = newConv;
     }
-    // 刷新 UI
     _mergeAndRefreshList();
   }
 
@@ -169,7 +176,7 @@ class ConversationLogic extends GetxController {
     } catch (e) {
       sdkConvs = [];
     }
-    final merged = <ConversationInfo>[...sdkConvs];
+    final merged = <ConversationInfo>[...sdkConvs.where((e) => !e.isGroupChat)];
     // 插入 CS 会话（去重）
     for (final csConv in _csConversations.values) {
       final idx = merged.indexWhere((e) => e.conversationID == csConv.conversationID);
@@ -223,13 +230,13 @@ class ConversationLogic extends GetxController {
     if (reInstall) {
       onChangeConversations.addAll(newList);
     }
-    for (var newValue in newList) {
+    for (var newValue in newList.where((e) => !e.isGroupChat)) {
       Logger.print('======== conversation changed: ${newValue.toJson()} ========');
       list.removeWhere((e) => e.conversationID == newValue.conversationID);
     }
 
     if (newList.length > pageSize) {
-      final tempList = newList;
+      final tempList = newList.where((e) => !e.isGroupChat).toList();
 
       while (true) {
         final temp = tempList.sublist(0, pageSize);
@@ -243,7 +250,7 @@ class ConversationLogic extends GetxController {
         tempList.removeRange(0, pageSize);
       }
     } else {
-      list.insertAll(0, newList);
+      list.insertAll(0, newList.where((e) => !e.isGroupChat));
       _sortConversationList();
       Logger.print(
           '======== conversation sort result: ${list.where((e) => e.unreadCount > 0).toList().map((e) => '${e.showName} [${e.conversationID}]: ${e.unreadCount}')} ========');
@@ -384,7 +391,7 @@ class ConversationLogic extends GetxController {
   }
 
   void getFirstPage() async {
-    final result = homeLogic.conversationsAtFirstPage;
+    final result = homeLogic.conversationsAtFirstPage.where((e) => !e.isGroupChat).toList();
 
     list.assignAll(result);
     _sortConversationList();
@@ -392,6 +399,42 @@ class ConversationLogic extends GetxController {
 
   void clearConversations() {
     list.clear();
+  }
+
+  /// 清除所有测试对话数据
+  Future<void> clearAllConversations() async {
+    try {
+      // 清除 SDK 会话
+      await OpenIM.iMManager.conversationManager.deleteAllConversationFromLocal();
+      // 清除本地列表
+      list.clear();
+      // 清除 CS 消息缓存
+      CsMessageStore().dispose();
+      Logger.print('[Conversation] 已清除所有对话数据');
+    } catch (e, s) {
+      Logger.print('[Conversation] 清除对话失败: $e $s');
+    }
+  }
+
+  /// 删除单个对话
+  Future<void> deleteConversation(ConversationInfo info) async {
+    try {
+      // 如果是 CS 对话，清除 CS 消息缓存
+      if (isCsConversation(info)) {
+        final convId = info.conversationID;
+        if (convId != null) {
+          CsMessageStore().clearConversation(convId);
+        }
+      }
+      // 调用 SDK 删除对话和所有消息
+      await OpenIM.iMManager.conversationManager.deleteConversationAndDeleteAllMsg(
+        conversationID: info.conversationID,
+      );
+      // 从本地列表移除
+      list.remove(info);
+    } catch (e, s) {
+      Logger.print('[Conversation] 删除对话失败: $e $s');
+    }
   }
 
   Future<List<ConversationInfo>> _request() async {
@@ -415,7 +458,7 @@ class ConversationLogic extends GetxController {
           }
         }
       }
-      temp.addAll(result);
+      temp.addAll(result.where((e) => !e.isGroupChat));
 
       if (result.length < pageSize) {
         break;
@@ -482,8 +525,6 @@ class ConversationLogic extends GetxController {
   }
 
   dynamic addFriend() => AppNavigator.startAddContactsBySearch(searchType: null);
-  dynamic createGroup() => AppNavigator.startCreateGroup(defaultCheckedList: [OpenIM.iMManager.userInfo]);
-  dynamic addGroup() => AppNavigator.startAddContactsBySearch(searchType: null);
 
   void globalSearch() => AppNavigator.startGlobalSearch();
 }

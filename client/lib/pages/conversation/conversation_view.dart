@@ -23,8 +23,6 @@ class ConversationPage extends StatelessWidget {
               isFailed: logic.isFailedSdkStatus,
               popCtrl: logic.popCtrl,
               onAddFriend: logic.addFriend,
-              onAddGroup: logic.addGroup,
-              onCreateGroup: logic.createGroup,
               left: Expanded(
                 flex: 2,
                 child: Row(
@@ -73,6 +71,7 @@ class ConversationPage extends StatelessWidget {
   Widget _buildItemView(ConversationInfo info) => Ink(
         child: InkWell(
           onTap: () => logic.toChat(conversationInfo: info),
+          onLongPress: () => _showDeleteDialog(info),
           child: Stack(
             children: [
               Container(
@@ -175,4 +174,27 @@ class ConversationPage extends StatelessWidget {
           ),
         ),
       );
+
+  void _showDeleteDialog(ConversationInfo info) {
+    showDialog(
+      context: Get.context!,
+      builder: (context) => AlertDialog(
+        title: const Text('删除对话'),
+        content: Text('确定要删除与 ${logic.getShowName(info)} 的对话吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              logic.deleteConversation(info);
+            },
+            child: const Text('删除', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
 }

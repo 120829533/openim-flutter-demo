@@ -17,7 +17,6 @@ class HomeLogic extends SuperController {
   final index = 0.obs;
   final unreadMsgCount = 0.obs;
   final unhandledFriendApplicationCount = 0.obs;
-  final unhandledGroupApplicationCount = 0.obs;
   final unhandledCount = 0.obs;
   bool? _isAutoLogin;
   final _errorController = PublishSubject<String>();
@@ -46,22 +45,7 @@ class HomeLogic extends SuperController {
       }
     }
     unhandledFriendApplicationCount.value = i;
-    unhandledCount.value = unhandledGroupApplicationCount.value + i;
-  }
-
-  void getUnhandledGroupApplicationCount() async {
-    var i = 0;
-    var list = await OpenIM.iMManager.groupManager.getGroupApplicationListAsRecipient();
-    var haveReadList = DataSp.getHaveReadUnHandleGroupApplication();
-    haveReadList ??= <String>[];
-    for (var info in list) {
-      var id = IMUtils.buildGroupApplicationID(info);
-      if (!haveReadList.contains(id)) {
-        if (info.handleResult == 0) i++;
-      }
-    }
-    unhandledGroupApplicationCount.value = i;
-    unhandledCount.value = unhandledFriendApplicationCount.value + i;
+    unhandledCount.value = i;
   }
 
   @override
@@ -75,9 +59,6 @@ class HomeLogic extends SuperController {
     });
     imLogic.friendApplicationChangedSubject.listen((value) {
       getUnhandledFriendApplicationCount();
-    });
-    imLogic.groupApplicationChangedSubject.listen((value) {
-      getUnhandledGroupApplicationCount();
     });
 
     imLogic.imSdkStatusPublishSubject.listen((value) {
@@ -99,7 +80,6 @@ class HomeLogic extends SuperController {
     _getRTCInvitationStart();
     _getUnreadMsgCount();
     getUnhandledFriendApplicationCount();
-    getUnhandledGroupApplicationCount();
     cacheLogic.initCallRecords();
     super.onReady();
   }

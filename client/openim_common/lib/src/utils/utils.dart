@@ -303,7 +303,7 @@ class IMUtils {
     if (!calculate) return list;
     var milliseconds = list.firstOrNull?.sendTime;
     if (null == milliseconds) return list;
-    list.first.exMap['showTime'] = true;
+    list.first.exMap = Map.from(list.first.exMap)..['showTime'] = true;
     var lastShowTimeStamp = milliseconds;
     for (var i = 0; i < list.length; i++) {
       var index = i + 1;
@@ -313,7 +313,7 @@ class IMUtils {
         var next = getDateTimeByMs(milliseconds);
         if (next.difference(cur).inMinutes > 5) {
           lastShowTimeStamp = milliseconds;
-          list.elementAt(index).exMap['showTime'] = true;
+          list.elementAt(index).exMap = Map.from(list.elementAt(index).exMap)..['showTime'] = true;
         }
       }
     }

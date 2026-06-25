@@ -6,6 +6,7 @@ class ChatTextField extends StatelessWidget {
   final FocusNode? focusNode;
   final TextEditingController? controller;
   final String? hintText;
+  final VoidCallback? onSubmitted;
 
   final TextStyle? style;
   final TextStyle? atStyle;
@@ -21,6 +22,7 @@ class ChatTextField extends StatelessWidget {
     this.atStyle,
     this.enabled = true,
     this.textAlign = TextAlign.start,
+    this.onSubmitted,
   });
 
   @override
@@ -35,6 +37,8 @@ class ChatTextField extends StatelessWidget {
       minLines: 1,
       maxLines: 4,
       textAlign: textAlign,
+      textInputAction: TextInputAction.send,
+      onSubmitted: (_) => onSubmitted?.call(),
       decoration: InputDecoration(
         border: InputBorder.none,
         isDense: true,

@@ -146,7 +146,7 @@ class MatchTextView extends StatelessWidget {
   }
 
   static String stripHtmlIfNeeded(String text) {
-    return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;|[]'), ' ');
+    return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
   }
 }
 

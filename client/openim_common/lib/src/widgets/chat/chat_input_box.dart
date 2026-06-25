@@ -156,10 +156,12 @@ class _ChatInputBoxState extends State<ChatInputBox> /*with TickerProviderStateM
           enabled: widget.enabled,
           hintText: widget.hintText,
           textAlign: widget.enabled ? TextAlign.start : TextAlign.center,
+          onSubmitted: send,
         ),
       );
 
   void send() {
+    Logger.print('[ChatInputBox] send 被调用, enabled=${widget.enabled}, text=${widget.controller?.text}, onSend=${widget.onSend != null}');
     if (!widget.enabled) return;
     if (null != widget.onSend && null != widget.controller) {
       widget.onSend!(widget.controller!.text.toString().trim());

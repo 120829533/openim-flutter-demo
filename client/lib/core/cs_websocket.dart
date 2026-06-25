@@ -194,6 +194,7 @@ class CsWebSocketService {
   }
 
   /// 发送消息（通过 WebSocket）
+  /// [conversationId] 是服务端的 conversation_id，格式为 si_{sorted_id1}_{sorted_id2}
   void sendMessage(String conversationId, String content) {
     if (_ws == null || _ws?.readyState != WebSocket.open) {
       Logger.print('[CS WS] 未连接，无法发送消息');
@@ -208,7 +209,7 @@ class CsWebSocketService {
         'content': content,
       }
     }));
-    Logger.print('[CS WS] 消息已发送: conv=$conversationId');
+    Logger.print('[CS WS] 消息已发送: conversationId=$conversationId');
   }
 
   /// 释放资源

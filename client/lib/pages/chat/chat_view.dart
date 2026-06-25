@@ -148,52 +148,109 @@ class ChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: logic.willPop(),
-      child: Obx(() {
-        return Scaffold(
-            backgroundColor: Styles.c_F0F2F6,
-            appBar: TitleBar.chat(
-              title: logic.nickname.value,
-              member: logic.memberStr,
-              onCloseMultiModel: logic.exit,
-              onClickMoreBtn: logic.chatSetup,
-              onClickCallBtn: logic.isGroupChat ? null : logic.call,
-            ),
-            body: SafeArea(
-              child: WaterMarkBgView(
-                text: '',
-                path: logic.background.value,
-                backgroundColor: Styles.c_FFFFFF,
-                floatView: _groupCallHintView,
-                bottomView: ChatInputBox(
-                  forceCloseToolboxSub: logic.forceCloseToolbox,
-                  controller: logic.inputCtrl,
-                  focusNode: logic.focusNode,
-                  isNotInGroup: logic.isInvalidGroup,
-                  directionalText: logic.directionalText(),
-                  onCloseDirectional: logic.onClearDirectional,
-                  onSend: (v) => logic.sendTextMsg(),
-                  toolbox: ChatToolBox(
-                    onTapAlbum: logic.onTapAlbum,
-                    onTapCall: logic.isGroupChat ? null : logic.call,
+    try {
+      return WillPopScope(
+        onWillPop: logic.willPop(),
+        child: Obx(() {
+          try {
+            return Scaffold(
+                backgroundColor: Styles.c_F0F2F6,
+                appBar: TitleBar.chat(
+                  title: logic.nickname.value,
+                  member: logic.memberStr,
+                  onCloseMultiModel: logic.exit,
+                  onClickMoreBtn: logic.chatSetup,
+                  onClickCallBtn: logic.isGroupChat ? null : logic.call,
+                ),
+                body: SafeArea(
+                  child: Column(
+                    children: [
+                      // 调试信息：显示会话ID和消息数
+                      Obx(() {
+                        final convId = logic.conversationInfo.conversationID;
+                        return Container(
+                          width: double.infinity,
+                          color: logic.isCsConversation ? Colors.orange.shade100 : Colors.green.shade100,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          child: Text(
+                            'CS=${logic.isCsConversation} | msgs=${logic.messageList.length} | convId=${convId.length > 30 ? '${convId.substring(0, 30)}...' : convId}',
+                            style: const TextStyle(fontSize: 10, color: Colors.black87),
+                          ),
+                        );
+                      }),
+                      Expanded(
+                        child: WaterMarkBgView(
+                          text: '',
+                          path: logic.background.value,
+                          backgroundColor: Styles.c_FFFFFF,
+                          floatView: _groupCallHintView,
+                          bottomView: ChatInputBox(
+                      forceCloseToolboxSub: logic.forceCloseToolbox,
+                      controller: logic.inputCtrl,
+                      focusNode: logic.focusNode,
+                      isNotInGroup: logic.isInvalidGroup,
+                      directionalText: logic.directionalText(),
+                      onCloseDirectional: logic.onClearDirectional,
+                      onSend: (v) => logic.sendTextMsg(),
+                      toolbox: ChatToolBox(
+                        onTapAlbum: logic.onTapAlbum,
+                        onTapCall: logic.isGroupChat ? null : logic.call,
+                      ),
+                      voiceRecordBar: const SizedBox(),
+                    ),
+                    child: ChatListView(
+                      onTouch: () => logic.closeToolbox(),
+                      itemCount: logic.messageList.length,
+                      controller: logic.scrollController,
+                      onScrollToBottomLoad: logic.onScrollToBottomLoad,
+                      onScrollToTop: logic.onScrollToTop,
+                      itemBuilder: (_, index) {
+                        try {
+                          final message = logic.indexOfMessage(index);
+                          return Obx(() => _buildItemView(message));
+                        } catch (e, s) {
+                          Logger.print('[ChatView] itemBuilder 异常: $e $s');
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
                   ),
-                  voiceRecordBar: const SizedBox(),
-                ),
-                child: ChatListView(
-                  onTouch: () => logic.closeToolbox(),
-                  itemCount: logic.messageList.length,
-                  controller: logic.scrollController,
-                  onScrollToBottomLoad: logic.onScrollToBottomLoad,
-                  onScrollToTop: logic.onScrollToTop,
-                  itemBuilder: (_, index) {
-                    final message = logic.indexOfMessage(index);
-                    return Obx(() => _buildItemView(message));
-                  },
-                ),
-              ),
-            ));
-      }),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+          } catch (e, s) {
+            Logger.print('[ChatView] Obx build 异常: $e $s');
+            return _buildErrorView('聊天页面加载失败: $e');
+          }
+        }),
+      );
+    } catch (e, s) {
+      Logger.print('[ChatView] build 异常: $e $s');
+      return _buildErrorView('页面加载失败: $e');
+    }
+  }
+
+  Widget _buildErrorView(String msg) {
+    return Scaffold(
+      backgroundColor: Styles.c_F0F2F6,
+      appBar: AppBar(title: const Text('聊天')),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(msg, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Get.back(),
+              child: const Text('返回'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

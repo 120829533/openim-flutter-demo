@@ -59,8 +59,6 @@ class TitleBar extends StatelessWidget implements PreferredSizeWidget {
       String? statusStr,
       bool isFailed = false,
       Function()? onAddFriend,
-      Function()? onAddGroup,
-      Function()? onCreateGroup,
       CustomPopupMenuController? popCtrl,
       this.left})
       : backgroundColor = null,
@@ -73,21 +71,12 @@ class TitleBar extends StatelessWidget implements PreferredSizeWidget {
             PopButton(
               popCtrl: popCtrl,
               menus: [
-                PopMenuInfo(
-                  text: StrRes.addFriend,
-                  icon: ImageRes.popMenuAddFriend,
-                  onTap: onAddFriend,
-                ),
-                PopMenuInfo(
-                  text: StrRes.addGroup,
-                  icon: ImageRes.popMenuAddGroup,
-                  onTap: onAddGroup,
-                ),
-                PopMenuInfo(
-                  text: StrRes.createGroup,
-                  icon: ImageRes.popMenuCreateGroup,
-                  onTap: onCreateGroup,
-                ),
+                if (onAddFriend != null)
+                  PopMenuInfo(
+                    text: StrRes.addFriend,
+                    icon: ImageRes.popMenuAddFriend,
+                    onTap: onAddFriend,
+                  ),
               ],
               child: ImageRes.addBlack.toImage
                 ..width = 28.w

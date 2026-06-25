@@ -30,11 +30,6 @@ class SelectContactsPage extends StatelessWidget {
                             label: StrRes.myFriend,
                             onTap: logic.selectFromMyFriend,
                           ),
-                          if (!logic.hiddenGroup)
-                            _buildCategoryItemView(
-                              label: StrRes.myGroup,
-                              onTap: logic.selectFromMyGroup,
-                            ),
                         ],
                       ),
                       itemExtent: 56.h,
@@ -110,7 +105,6 @@ class SelectContactsPage extends StatelessWidget {
                   AvatarView(
                     url: info.faceURL,
                     text: info.showName,
-                    isGroup: !info.isSingleChat,
                   ),
                   10.horizontalSpace,
                   Flexible(
