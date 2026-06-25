@@ -90,6 +90,27 @@ class ConversationPage extends StatelessWidget {
                           isGroup: logic.isGroupChat(info),
                           textStyle: Styles.ts_FFFFFF_14sp_medium,
                         ),
+                        // CS 客服标识
+                        if (logic.isCsConversation(info))
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1a3e72),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'CS',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                     12.horizontalSpace,
@@ -101,10 +122,17 @@ class ConversationPage extends StatelessWidget {
                             children: [
                               ConstrainedBox(
                                 constraints: BoxConstraints(maxWidth: 180.w),
-                                child: logic.getShowName(info).toText
-                                  ..style = Styles.ts_0C1C33_17sp
-                                  ..maxLines = 1
-                                  ..overflow = TextOverflow.ellipsis,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: logic.getShowName(info).toText
+                                        ..style = Styles.ts_0C1C33_17sp
+                                        ..maxLines = 1
+                                        ..overflow = TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
                               ),
                               const Spacer(),
                               logic.getTime(info).toText..style = Styles.ts_8E9AB0_12sp,

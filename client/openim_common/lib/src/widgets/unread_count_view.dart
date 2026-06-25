@@ -4,11 +4,11 @@ import 'package:openim_common/openim_common.dart';
 
 class UnreadCountView extends StatelessWidget {
   const UnreadCountView({
-    Key? key,
+    super.key,
     this.count = 0,
     this.size = 13,
     this.margin,
-  }) : super(key: key);
+  });
   final int count;
   final double size;
   final EdgeInsetsGeometry? margin;

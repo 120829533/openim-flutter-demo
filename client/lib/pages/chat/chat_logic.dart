@@ -12,11 +12,7 @@ import 'package:get/get.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-import 'package:wechat_camera_picker/wechat_camera_picker.dart';
-import 'package:openim_live/openim_live.dart';
 
 import '../../core/controller/app_controller.dart';
 import '../../core/controller/im_controller.dart';
@@ -24,7 +20,6 @@ import '../../core/im_callback.dart';
 import '../../routes/app_navigator.dart';
 import '../contacts/select_contacts/select_contacts_logic.dart';
 import '../conversation/conversation_logic.dart';
-import 'group_setup/group_member_list/group_member_list_logic.dart';
 
 class ChatLogic extends SuperController {
   final imLogic = Get.find<IMController>();
@@ -318,13 +313,6 @@ class ChatLogic extends SuperController {
       focusNodeChanged(focusNode.hasFocus);
     });
 
-    imLogic.onSignalingMessage = (value) {
-      if (value.userID == userID) {
-        messageList.add(value.message);
-        scrollBottom();
-      }
-    };
-
     super.onInit();
   }
 
@@ -365,7 +353,7 @@ class ChatLogic extends SuperController {
     }
   }
 
-  sendForwardRemarkMsg(
+  Future<void> sendForwardRemarkMsg(
     String content, {
     String? userId,
     String? groupId,
@@ -376,7 +364,7 @@ class ChatLogic extends SuperController {
     _sendMessage(message, userId: userId, groupId: groupId);
   }
 
-  sendForwardMsg(
+  Future<void> sendForwardMsg(
     Message originalMessage, {
     String? userId,
     String? groupId,
@@ -538,7 +526,7 @@ class ChatLogic extends SuperController {
     }
   }
 
-  _markMessageAsRead(Message message) async {
+  Future<void> _markMessageAsRead(Message message) async {
     if (!message.isRead! && message.sendID != OpenIM.iMManager.userID) {
       try {
         Logger.print('mark conversation message as read：${message.clientMsgID!} ${message.isRead}');
@@ -554,7 +542,7 @@ class ChatLogic extends SuperController {
     }
   }
 
-  _clearUnreadCount() {
+  void _clearUnreadCount() {
     if (conversationInfo.unreadCount > 0) {
       OpenIM.iMManager.conversationManager
           .markConversationMessageAsRead(conversationID: conversationInfo.conversationID);
@@ -566,76 +554,11 @@ class ChatLogic extends SuperController {
   }
 
   void onTapAlbum() async {
-    final List<AssetEntity>? assets = await AssetPicker.pickAssets(Get.context!,
-        pickerConfig: AssetPickerConfig(
-            sortPathsByModifiedDate: true,
-            filterOptions: PMFilter.defaultValue(containsPathModified: true),
-            selectPredicate: (_, entity, isSelected) async {
-              if (entity.type == AssetType.image) {
-                if (await allowSendImageType(entity)) {
-                  return true;
-                }
-
-                IMViews.showToast(StrRes.supportsTypeHint);
-
-                return false;
-              }
-
-              if (entity.videoDuration > const Duration(seconds: 5 * 60)) {
-                IMViews.showToast(sprintf(StrRes.selectVideoLimit, [5]) + StrRes.minute);
-                return false;
-              }
-              return true;
-            }));
-    if (null != assets) {
-      for (var asset in assets) {
-        await _handleAssets(asset, sendNow: false);
-      }
-
-      for (var msg in tempMessages) {
-        await _sendMessage(msg, addToUI: false);
-      }
-
-      tempMessages.clear();
-    }
-  }
-
-  Future<bool> allowSendImageType(AssetEntity entity) async {
-    final mimeType = await entity.mimeTypeAsync;
-
-    return IMUtils.allowImageType(mimeType);
-  }
-
-  Future _handleAssets(AssetEntity? asset, {bool sendNow = true}) async {
-    if (null != asset) {
-      Logger.print('--------assets type-----${asset.type} create time: ${asset.createDateTime}');
-      final originalFile = await asset.file;
-      final originalPath = originalFile!.path;
-      var path = originalPath.toLowerCase().endsWith('.gif') ? originalPath : originalFile.path;
-      Logger.print('--------assets path-----$path');
-      switch (asset.type) {
-        case AssetType.image:
-          await sendPicture(path: path, sendNow: sendNow);
-          break;
-        default:
-          break;
-      }
-      if (Platform.isIOS) {
-        originalFile.deleteSync();
-      }
-    }
+    // 相册选择器已移除
   }
 
   void onTapDirectionalMessage() async {
-    if (null != groupInfo) {
-      final list = await AppNavigator.startGroupMemberList(
-        groupInfo: groupInfo!,
-        opType: GroupMemberOpType.call,
-      );
-      if (list is List<GroupMembersInfo>) {
-        directionalUsers.assignAll(list);
-      }
-    }
+    // 群聊功能已移除
   }
 
   TextSpan? directionalText() {
@@ -724,7 +647,7 @@ class ChatLogic extends SuperController {
     }
   }
 
-  exit() async {
+  Future<bool> exit() async {
     Get.back();
 
     return true;
@@ -917,18 +840,7 @@ class ChatLogic extends SuperController {
   }
 
   void call() {
-    if (rtcIsBusy) {
-      IMViews.showToast(StrRes.callingBusy);
-      return;
-    }
-
-    IMViews.openIMCallSheet(nickname.value, (index) {
-      imLogic.call(
-        callObj: CallObj.single,
-        callType: index == 0 ? CallType.audio : CallType.video,
-        inviteeUserIDList: [if (isSingleChat) userID!],
-      );
-    });
+    IMViews.showToast('调试模式暂未启用音视频通话');
   }
 
   void onScrollToTop() {
@@ -1052,7 +964,7 @@ class ChatLogic extends SuperController {
     }
   }
 
-  recommendFriendCarte(UserInfo userInfo) async {
+  Future<void> recommendFriendCarte(UserInfo userInfo) async {
     final result = await AppNavigator.startSelectContacts(
       action: SelAction.recommend,
       ex: '[${StrRes.carte}]${userInfo.nickname}',

@@ -6,14 +6,14 @@ import 'package:openim_common/openim_common.dart';
 
 class TitleBar extends StatelessWidget implements PreferredSizeWidget {
   const TitleBar({
-    Key? key,
+    super.key,
     this.height,
     this.left,
     this.center,
     this.right,
     this.backgroundColor,
     this.showUnderline = false,
-  }) : super(key: key);
+  });
   final double? height;
   final Widget? left;
   final Widget? center;

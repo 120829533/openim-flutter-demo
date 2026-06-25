@@ -6,13 +6,13 @@ import 'package:openim_common/openim_common.dart';
 
 class ChatSendFailedView extends StatefulWidget {
   const ChatSendFailedView({
-    Key? key,
+    super.key,
     required this.id,
     required this.isISend,
     this.isFailed = false,
     this.stream,
     this.onFailedToResend,
-  }) : super(key: key);
+  });
   final String id;
   final bool isISend;
   final Stream<MsgStreamEv<bool>>? stream;

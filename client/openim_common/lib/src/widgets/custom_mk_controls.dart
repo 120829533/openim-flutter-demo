@@ -19,7 +19,7 @@ MaterialVideoControlsThemeData _theme(BuildContext context) => FullscreenInherit
     : MaterialVideoControlsTheme.maybeOf(context)?.fullscreen ?? kDefaultMaterialVideoControlsThemeDataFullscreen;
 
 class _CustomMKMaterialVideoControls extends StatefulWidget {
-  const _CustomMKMaterialVideoControls({super.key});
+  const _CustomMKMaterialVideoControls();
 
   @override
   State<_CustomMKMaterialVideoControls> createState() => _CustomMMaterialVideoControlsState();
@@ -898,10 +898,9 @@ class _BackwardSeekIndicator extends StatefulWidget {
   final void Function(Duration) onChanged;
   final void Function(Duration) onSubmitted;
   const _BackwardSeekIndicator({
-    Key? key,
     required this.onChanged,
     required this.onSubmitted,
-  }) : super(key: key);
+  });
 
   @override
   State<_BackwardSeekIndicator> createState() => _BackwardSeekIndicatorState();
@@ -985,10 +984,9 @@ class _ForwardSeekIndicator extends StatefulWidget {
   final void Function(Duration) onChanged;
   final void Function(Duration) onSubmitted;
   const _ForwardSeekIndicator({
-    Key? key,
     required this.onChanged,
     required this.onSubmitted,
-  }) : super(key: key);
+  });
 
   @override
   State<_ForwardSeekIndicator> createState() => _ForwardSeekIndicatorState();

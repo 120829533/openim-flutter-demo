@@ -44,7 +44,7 @@ class PopButton extends StatelessWidget {
   final double? lineWidth;
 
   const PopButton({
-    Key? key,
+    super.key,
     required this.menus,
     required this.child,
     this.popCtrl,
@@ -69,7 +69,7 @@ class PopButton extends StatelessWidget {
     this.menuItemPadding,
     this.lineColor,
     this.lineWidth = 1.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +92,7 @@ class PopButton extends StatelessWidget {
     );
   }
 
-  _clickArea(double dy) {
+  void _clickArea(double dy) {
     for (var i = 0; i < menus.length; i++) {
       if (dy > i * menuItemHeight! && dy <= (i + 1) * menuItemHeight!) {
         menus.elementAt(i).onTap?.call();

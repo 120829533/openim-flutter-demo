@@ -19,9 +19,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
-import 'package:local_auth/local_auth.dart';
-import 'package:local_auth_android/local_auth_android.dart';
-import 'package:local_auth_darwin/local_auth_darwin.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:mime/mime.dart';
 import 'package:open_filex/open_filex.dart';
@@ -134,7 +131,7 @@ class IMUtils {
     return info;
   }
 
-  static saveMediaToGallery(String mimeType, String cachePath) async {
+  static Future<void> saveMediaToGallery(String mimeType, String cachePath) async {
     if (mimeType.contains('video') || mimeType.contains('image')) {
       await ImageGallerySaverPlus.saveFile(cachePath);
     }
@@ -1000,7 +997,7 @@ class IMUtils {
     }
   }
 
-  static openFileByOtherApp(String path) async {
+  static Future<void> openFileByOtherApp(String path) async {
     OpenResult result = await OpenFilex.open(path);
     if (result.type == ResultType.noAppToOpen) {
       IMViews.showToast("No supported app available");
@@ -1176,7 +1173,7 @@ class IMUtils {
     return null;
   }
 
-  static convertCheckedListToMap(List<dynamic>? checkedList) {
+  static Map<String, dynamic>? convertCheckedListToMap(List<dynamic>? checkedList) {
     if (null == checkedList) return null;
     final checkedMap = <String, dynamic>{};
     for (var item in checkedList) {
@@ -1262,35 +1259,6 @@ class IMUtils {
 
     return formatDateMs(ms, format: isZH ? 'yyyy年MM月dd' : 'yyyy/MM/dd');
   }
-
-  static Future<bool> checkingBiometric(LocalAuthentication auth) => auth.authenticate(
-        localizedReason: 'Scan your fingerprint (or face or other) to authenticate.',
-        options: const AuthenticationOptions(
-          biometricOnly: true,
-        ),
-        authMessages: <AuthMessages>[
-          const AndroidAuthMessages(
-            cancelButton: 'No, thanks',
-            biometricNotRecognized: 'Biometric not recognized. Try again.',
-            biometricHint: 'Verify identity',
-            biometricSuccess: 'Success',
-            biometricRequiredTitle: 'Authentication required',
-            goToSettingsDescription:
-                "No biometric authentication is set up on your device. Go to Settings > Security to add biometric authentication.",
-            goToSettingsButton: 'Go to settings',
-            deviceCredentialsRequiredTitle: 'Device credentials required',
-            deviceCredentialsSetupDescription: 'Device credentials required',
-            signInTitle: 'Authentication required',
-          ),
-          const IOSAuthMessages(
-            cancelButton: 'No, thanks',
-            goToSettingsButton: 'Go to settings',
-            goToSettingsDescription:
-                'No biometric authentication is set up on your device. Please enable Touch ID or Face ID on your phone.',
-            lockOut: 'Biometric authentication is disabled. Please lock and unlock your screen to enable it.',
-          ),
-        ],
-      );
 
   static String safeTrim(String text) {
     return text.trim();

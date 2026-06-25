@@ -15,8 +15,6 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 
 class IMViews {
   IMViews._();
@@ -55,7 +53,7 @@ class IMViews {
         },
       );
 
-  static openIMCallSheet(
+  static Future<dynamic> openIMCallSheet(
     String label,
     Function(int index) onTapSheetItem,
   ) {
@@ -80,7 +78,7 @@ class IMViews {
     );
   }
 
-  static openIMGroupCallSheet(
+  static Future<dynamic> openIMGroupCallSheet(
     String groupID,
     Function(int index) onTapSheetItem,
   ) {
@@ -117,67 +115,10 @@ class IMViews {
       return result;
     }
 
-    Future<bool> allowSendImageType(AssetEntity entity) async {
-      final mimeType = await entity.mimeTypeAsync;
-
-      return allowSendImageTypeHelper(mimeType);
-    }
-
     Get.bottomSheet(
       BottomSheetView(
         items: [
           ...items,
-          if (fromGallery)
-            SheetItem(
-              label: StrRes.toolboxAlbum,
-              onTap: () async {
-                final List<AssetEntity>? assets = await AssetPicker.pickAssets(Get.context!,
-                    pickerConfig: AssetPickerConfig(
-                        requestType: RequestType.image,
-                        maxAssets: 1,
-                        selectPredicate: (_, entity, isSelected) async {
-                          if (await allowSendImageType(entity)) {
-                            return true;
-                          }
-
-                          IMViews.showToast(StrRes.supportsTypeHint);
-
-                          return false;
-                        }));
-                final file = await assets?.firstOrNull?.file;
-
-                if (file?.path != null) {
-                  final map = await uCropPic(file!.path, crop: crop, toUrl: toUrl, quality: quality);
-                  onData?.call(map['path'], map['url']);
-                }
-              },
-            ),
-          if (fromCamera)
-            SheetItem(
-              label: StrRes.toolboxCamera,
-              onTap: () async {
-                final AssetEntity? entity = await CameraPicker.pickFromCamera(
-                  Get.context!,
-                  locale: Get.locale,
-                  pickerConfig: CameraPickerConfig(
-                    enableAudio: true,
-                    enableRecording: true,
-                    enableScaledPreview: false,
-                    maximumRecordingDuration: 60.seconds,
-                    onMinimumRecordDurationNotMet: () {
-                      IMViews.showToast(StrRes.tapTooShort);
-                    },
-                  ),
-                );
-
-                final file = await entity?.file;
-
-                if (file?.path != null) {
-                  final map = await uCropPic(file!.path, crop: crop, toUrl: toUrl, quality: quality);
-                  onData?.call(map['path'], map['url']);
-                }
-              },
-            ),
         ],
       ),
     );
@@ -319,7 +260,7 @@ class IMViews {
           prefixIcon: const Icon(Icons.search),
           border: OutlineInputBorder(
             borderSide: BorderSide(
-              color: const Color(0xFF8C98A8).withOpacity(0.2),
+              color: const Color(0xFF8C98A8).withValues(alpha: 0.2),
             ),
           ),
         ),

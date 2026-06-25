@@ -31,7 +31,7 @@ class EditMyInfoLogic extends GetxController {
     super.onInit();
   }
 
-  _initAttr() {
+  void _initAttr() {
     switch (editAttr) {
       case EditAttr.nickname:
         title = StrRes.name;

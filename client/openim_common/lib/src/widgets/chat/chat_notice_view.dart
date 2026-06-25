@@ -4,10 +4,10 @@ import 'package:openim_common/openim_common.dart';
 
 class ChatNoticeView extends StatelessWidget {
   const ChatNoticeView({
-    Key? key,
+    super.key,
     required this.isISend,
     required this.content,
-  }) : super(key: key);
+  });
   final bool isISend;
   final String content;
 
@@ -42,11 +42,11 @@ class ChatNoticeView extends StatelessWidget {
 
 class TopNoticeView extends StatelessWidget {
   const TopNoticeView({
-    Key? key,
+    super.key,
     required this.content,
     this.onPreview,
     this.onClose,
-  }) : super(key: key);
+  });
   final String content;
   final Function()? onPreview;
   final Function()? onClose;

@@ -3,9 +3,22 @@ FROM maven:3.9.6-eclipse-temurin-17 AS builder
 
 WORKDIR /build
 
+RUN mkdir -p /root/.m2 \
+    && printf '%s\n' \
+    '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">' \
+    '  <mirrors>' \
+    '    <mirror>' \
+    '      <id>aliyunmaven</id>' \
+    '      <mirrorOf>*</mirrorOf>' \
+    '      <name>阿里云公共仓库</name>' \
+    '      <url>https://maven.aliyun.com/repository/public</url>' \
+    '    </mirror>' \
+    '  </mirrors>' \
+    '</settings>' > /root/.m2/settings.xml
+
 # 先复制 pom.xml，利用 Docker 缓存加速依赖下载
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
+RUN mvn -s /root/.m2/settings.xml dependency:go-offline -B
 
 # 复制源码并打包
 COPY src ./src

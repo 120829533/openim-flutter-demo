@@ -9,7 +9,7 @@ enum DialogType {
 
 class CustomDialog extends StatelessWidget {
   const CustomDialog({
-    Key? key,
+    super.key,
     this.title,
     this.url,
     this.content,
@@ -17,7 +17,7 @@ class CustomDialog extends StatelessWidget {
     this.leftText,
     this.onTapLeft,
     this.onTapRight,
-  }) : super(key: key);
+  });
   final String? title;
   final String? url;
   final String? content;
@@ -108,10 +108,10 @@ class CustomDialog extends StatelessWidget {
 
 class ForwardHintDialog extends StatelessWidget {
   const ForwardHintDialog({
-    Key? key,
+    super.key,
     required this.title,
     this.checkedList = const [],
-  }) : super(key: key);
+  });
   final String title;
   final List<dynamic> checkedList;
 

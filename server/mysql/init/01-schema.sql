@@ -191,4 +191,57 @@ INSERT INTO `app_versions` (`platform`, `version`, `version_code`, `download_url
   ('android', '1.0.0', 1, '', '首次发布', 0),
   ('ios',     '1.0.0', 1, '', '首次发布', 0);
 
+-- ============================================================
+-- 11. 客服访客表（CS 系统）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `cs_visitors` (
+  `visitor_id`     VARCHAR(32)  NOT NULL COMMENT '访客唯一 ID',
+  `openim_user_id` VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '对应的 OpenIM 用户 ID',
+  `visitor_name`   VARCHAR(100) NOT NULL DEFAULT '' COMMENT '访客昵称',
+  `visitor_avatar` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '访客头像 URL',
+  `visitor_ip`     VARCHAR(45)  DEFAULT NULL COMMENT '访客 IP',
+  `source_page`    VARCHAR(500) DEFAULT NULL COMMENT '来源页面',
+  `first_seen`     DATETIME     NOT NULL COMMENT '首次访问时间',
+  `last_seen`      DATETIME     NOT NULL COMMENT '最后访问时间',
+  `created_at`     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`visitor_id`),
+  INDEX `idx_openim_user` (`openim_user_id`),
+  INDEX `idx_ip` (`visitor_ip`),
+  INDEX `idx_last_seen` (`last_seen`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客服访客表';
+
+-- ============================================================
+-- 12. 客服会话映射表（CS 系统）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `cs_conversations` (
+  `conversation_id`     VARCHAR(64)  NOT NULL COMMENT 'CS 会话 ID',
+  `openim_conv_id`      VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '对应的 OpenIM 会话 ID',
+  `visitor_id`          VARCHAR(32)  NOT NULL COMMENT '访客 ID',
+  `cs_user_id`          VARCHAR(64)  NOT NULL DEFAULT 'cs_agent_001' COMMENT '客服用户 ID',
+  `status`              ENUM('active','closed','transferred') NOT NULL DEFAULT 'active' COMMENT '会话状态',
+  `last_message`        TEXT         DEFAULT NULL COMMENT '最后一条消息',
+  `last_message_time`   DATETIME     DEFAULT NULL COMMENT '最后消息时间',
+  `created_at`          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`conversation_id`),
+  INDEX `idx_openim_conv` (`openim_conv_id`),
+  INDEX `idx_visitor` (`visitor_id`),
+  INDEX `idx_cs_user` (`cs_user_id`),
+  INDEX `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客服会话映射表';
+
+-- ============================================================
+-- 插入预设客服账号（APK 客服端登录用）
+-- ============================================================
+INSERT IGNORE INTO `users` (user_id, account, password_hash, phone, email, avatar, nickname,
+                            gender, birthday, language, status, last_login_at, created_at, updated_at)
+VALUES ('cs_agent_001', 'cs_agent_001', '', '', '', '', '客服-云娜法兰',
+        0, NULL, 'zh-CN', 1, NULL, NOW(), NOW());
+
+INSERT IGNORE INTO `user_settings`
+    (user_id, font_size, notification_sound, vibration, dnd_start, dnd_end,
+     background_image, created_at, updated_at)
+VALUES ('cs_agent_001', 2, 1, 1, NULL, NULL, '', NOW(), NOW());
+
 SET FOREIGN_KEY_CHECKS = 1;

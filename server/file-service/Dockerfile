@@ -1,7 +1,11 @@
 FROM python:3.11-slim
 
+ENV PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/ \
+    PIP_TRUSTED_HOST=mirrors.aliyun.com
+
 # 安装 Pillow 所需的系统依赖（zlib、libjpeg 等）
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g; s|security.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources \
+    && apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     libjpeg62-turbo-dev \
     libjpeg-dev \

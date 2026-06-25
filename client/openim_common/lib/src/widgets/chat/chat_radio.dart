@@ -4,11 +4,11 @@ import 'package:openim_common/openim_common.dart';
 
 class ChatRadio extends StatelessWidget {
   const ChatRadio({
-    Key? key,
+    super.key,
     required this.checked,
     this.onTap,
     this.enabled = true,
-  }) : super(key: key);
+  });
   final bool checked;
   final Function()? onTap;
   final bool enabled;

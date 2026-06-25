@@ -5,10 +5,10 @@ import 'package:openim_common/openim_common.dart';
 
 class TimingView extends StatefulWidget {
   const TimingView({
-    Key? key,
+    super.key,
     required this.sec,
     this.onFinished,
-  }) : super(key: key);
+  });
   final int sec;
   final Function()? onFinished;
 

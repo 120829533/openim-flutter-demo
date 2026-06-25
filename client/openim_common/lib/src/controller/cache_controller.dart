@@ -9,7 +9,7 @@ class CacheController extends GetxController {
 
   String get userID => DataSp.getLoginCertificate()!.userID;
 
-  initCallRecords() {
+  void initCallRecords() {
     if (!_isInitCallRecords) {
       _isInitCallRecords = true;
       var list = callRecordBox?.get(userID, defaultValue: <CallRecords>[]);
@@ -30,12 +30,12 @@ class CacheController extends GetxController {
     }
   }
 
-  addCallRecords(CallRecords records) {
+  void addCallRecords(CallRecords records) {
     callRecordList.insert(0, records);
     callRecordBox?.put(userID, callRecordList.value);
   }
 
-  deleteCallRecords(CallRecords records) async {
+  Future<void> deleteCallRecords(CallRecords records) async {
     callRecordList.removeWhere((element) => element.userID == records.userID && element.date == records.date);
     await callRecordBox?.put(userID, callRecordList.value);
   }

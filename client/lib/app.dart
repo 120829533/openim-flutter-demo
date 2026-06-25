@@ -10,7 +10,7 @@ import 'routes/app_pages.dart';
 import 'widgets/app_view.dart';
 
 class ChatApp extends StatelessWidget {
-  const ChatApp({Key? key}) : super(key: key);
+  const ChatApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class ChatApp extends StatelessWidget {
   ThemeData get _themeData => ThemeData.light().copyWith(
         scaffoldBackgroundColor: Colors.grey.shade50,
         canvasColor: Colors.white,
-        appBarTheme: const AppBarTheme(color: Colors.white),
+        appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
         textSelectionTheme: const TextSelectionThemeData().copyWith(cursorColor: Colors.blue),
         checkboxTheme: const CheckboxThemeData().copyWith(
           checkColor: WidgetStateProperty.all(Colors.white),

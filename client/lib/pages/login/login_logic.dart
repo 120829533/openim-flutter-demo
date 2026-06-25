@@ -78,7 +78,7 @@ class LoginLogic extends GetxController with GetTickerProviderStateMixin {
 
   late TabController tabController;
 
-  _initData() async {
+  Future<void> _initData() async {
     var map = DataSp.getLoginAccount();
     if (map is Map) {
       String? phoneNumber = map["phoneNumber"];
@@ -122,7 +122,7 @@ class LoginLogic extends GetxController with GetTickerProviderStateMixin {
     getPackageInfo();
   }
 
-  _onChanged() {
+  void _onChanged() {
     if (loginType.value == LoginType.account) {
       enabled.value = phoneCtrl.text.trim().isNotEmpty && pwdCtrl.text.trim().isNotEmpty;
     } else {
@@ -131,7 +131,7 @@ class LoginLogic extends GetxController with GetTickerProviderStateMixin {
     }
   }
 
-  login() {
+  void login() {
     DataSp.putLoginType(loginType.value.rawValue);
     LoadingView.singleton.wrap(asyncFunction: () async {
       var suc = await _login();

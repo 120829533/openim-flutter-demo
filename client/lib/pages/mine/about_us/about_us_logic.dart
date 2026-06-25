@@ -51,8 +51,4 @@ class AboutUsLogic extends GetxController {
     super.onReady();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

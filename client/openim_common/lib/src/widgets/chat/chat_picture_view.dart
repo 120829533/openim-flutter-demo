@@ -8,10 +8,10 @@ import 'package:path_provider/path_provider.dart';
 
 class ChatPictureView extends StatefulWidget {
   const ChatPictureView({
-    Key? key,
+    super.key,
     required this.message,
     required this.isISend,
-  }) : super(key: key);
+  });
   final bool isISend;
   final Message message;
 
@@ -91,7 +91,7 @@ class _ChatPictureViewState extends State<ChatPictureView> {
 
   bool? get isValidPath => _message.exMap['validPath_$_sourcePath'];
 
-  _createChildView() async {
+  Future<void> _createChildView() async {
     if (widget.isISend && (isValidPath == true || isValidPath == null && await _checkingPath())) {
       _child = _buildPathPicture(path: _sourcePath!);
     } else if (IMUtils.isNotNullEmptyStr(_snapshotUrl)) {

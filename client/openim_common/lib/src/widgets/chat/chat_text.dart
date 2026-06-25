@@ -3,7 +3,7 @@ import 'package:openim_common/openim_common.dart';
 
 class ChatText extends StatelessWidget {
   const ChatText({
-    Key? key,
+    super.key,
     this.isISend = false,
     required this.text,
     this.prefixSpan,
@@ -15,7 +15,7 @@ class ChatText extends StatelessWidget {
     this.textScaleFactor = 1.0,
     this.model = TextModel.match,
     this.onVisibleTrulyText,
-  }) : super(key: key);
+  });
   final bool isISend;
   final String text;
   final TextStyle? textStyle;

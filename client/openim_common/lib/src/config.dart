@@ -64,7 +64,7 @@ class Config {
   static const friendScheme = "io.openim.app/addFriend/";
   static const groupScheme = "io.openim.app/joinGroup/";
 
-  static const _host = "your-server-ip or your-domain";
+  static const _host = "yunnaguanjian.com:8089";
 
   static const _ipRegex = '((2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){3}(2[0-4]\\d|25[0-5]|[01]?\\d\\d?)';
 
@@ -79,9 +79,8 @@ class Config {
     return ip ?? _host;
   }
 
-  // 以下 URL 指向我们自建的后端（Nginx 反向代理，端口 80/443）
-  // appAuthUrl / imApiUrl / chatTokenUrl → Nginx / → Python 服务（OpenIM Chat API 兼容层）
-  // imWsUrl → Nginx /ws → Java 服务 WebSocket
+  // 自建后端通过 Nginx 统一入口（公网 8089 HTTPS/WSS）
+  // Nginx 路由：/ → Python API，/ws → Java WebSocket，/file/ → 文件服务
 
   static String get chatTokenUrl {
     String? url;
@@ -89,7 +88,7 @@ class Config {
     if (null != server) {
       url = server['chatTokenUrl'];
     }
-    return url ?? (_isIP ? "http://$_host" : "https://$_host");
+    return url ?? "https://$_host";
   }
 
   static String get appAuthUrl {
@@ -98,7 +97,7 @@ class Config {
     if (null != server) {
       url = server['authUrl'];
     }
-    return url ?? (_isIP ? "http://$_host" : "https://$_host");
+    return url ?? "https://$_host";
   }
 
   static String get imApiUrl {
@@ -107,7 +106,7 @@ class Config {
     if (null != server) {
       url = server['apiUrl'];
     }
-    return url ?? (_isIP ? 'http://$_host' : "https://$_host");
+    return url ?? "https://$_host";
   }
 
   static String get imWsUrl {
@@ -116,7 +115,7 @@ class Config {
     if (null != server) {
       url = server['wsUrl'];
     }
-    return url ?? (_isIP ? "ws://$_host/ws" : "wss://$_host/ws");
+    return url ?? "wss://$_host/ws";
   }
 
   static int get logLevel {

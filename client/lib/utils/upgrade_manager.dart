@@ -32,7 +32,7 @@ mixin UpgradeManger {
     Get.back();
   }
 
-  getAppInfo() async {
+  Future<void> getAppInfo() async {
     packageInfo ??= await PackageInfo.fromPlatform();
   }
 
@@ -67,7 +67,7 @@ mixin UpgradeManger {
     });
   }
 
-  autoCheckVersionUpgrade() async {
+  Future<void> autoCheckVersionUpgrade() async {
     if (isShowUpgradeDialog || isNowIgnoreUpdate) return;
     await getAppInfo();
     upgradeInfoV2 = await Apis.checkUpgradeV2();

@@ -27,7 +27,7 @@ class ForgetPasswordLogic extends GetxController {
     super.onInit();
   }
 
-  _onChanged() {
+  void _onChanged() {
     enabled.value = phoneCtrl.text.trim().isNotEmpty && verificationCodeCtrl.text.trim().isNotEmpty;
   }
 
@@ -59,7 +59,7 @@ class ForgetPasswordLogic extends GetxController {
             usedFor: 2,
           ));
 
-  checkVerificationCode() => LoadingView.singleton.wrap(
+  Future<dynamic> checkVerificationCode() => LoadingView.singleton.wrap(
       asyncFunction: () => Apis.checkVerificationCode(
             areaCode: areaCode.value,
             phoneNumber: phone,

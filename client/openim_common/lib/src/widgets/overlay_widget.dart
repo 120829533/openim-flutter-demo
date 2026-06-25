@@ -107,7 +107,7 @@ class OverlayWidget {
     _isToastVisible = false;
   }
 
-  dismiss() async {
+  Future<void> dismiss() async {
     if (!_isVisible && !_isDialogVisible && !_isToastVisible) return;
     _overlayEntry?.remove();
     _overlayEntry = null;
@@ -125,11 +125,11 @@ class OverlayWidget {
 
 class DialogContainer extends StatefulWidget {
   const DialogContainer({
-    Key? key,
+    super.key,
     required this.child,
     this.backgroundColor,
     this.onDismiss,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final Color? backgroundColor;
@@ -190,10 +190,10 @@ class _DialogContainerState extends State<DialogContainer> with TickerProviderSt
 
 class BottomSheetContainer extends StatefulWidget {
   const BottomSheetContainer({
-    Key? key,
+    super.key,
     required this.child,
     this.onDismiss,
-  }) : super(key: key);
+  });
 
   final Widget Function(AnimationController? controller) child;
   final Function()? onDismiss;
@@ -270,12 +270,12 @@ class _BottomSheetContainerState extends State<BottomSheetContainer> with Ticker
 
 class PopupMenuButtonContainer extends StatefulWidget {
   const PopupMenuButtonContainer({
-    Key? key,
+    super.key,
     required this.builder,
     this.alignment = Alignment.topRight,
     this.onStartCloseAnimation,
     this.onCloseAnimationEnd,
-  }) : super(key: key);
+  });
 
   final Widget Function(AnimationController? controller) builder;
   final Alignment alignment;
@@ -332,11 +332,11 @@ class _PopupMenuButtonContainerState extends State<PopupMenuButtonContainer> wit
 
 class OverlayPopupMenuButton extends StatefulWidget {
   const OverlayPopupMenuButton({
-    Key? key,
+    super.key,
     required this.child,
     required this.builder,
     this.closePopMenuCompleter,
-  }) : super(key: key);
+  });
   final Widget child;
   final Widget Function(AnimationController? controller) builder;
   final Completer<bool>? closePopMenuCompleter;
@@ -356,7 +356,7 @@ class OverlayPopupMenuButtonState extends State<OverlayPopupMenuButton> {
     super.initState();
   }
 
-  dismiss() async {
+  Future<void> dismiss() async {
     if (!_isVisible) return;
     _overlayEntry?.remove();
     _overlayEntry = null;

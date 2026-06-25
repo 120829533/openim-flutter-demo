@@ -4,7 +4,7 @@ import 'package:openim_common/openim_common.dart';
 
 class RichTextInputBox extends StatefulWidget {
   const RichTextInputBox({
-    Key? key,
+    super.key,
     required this.voiceRecordBar,
     this.enabled = true,
     this.controller,
@@ -20,7 +20,7 @@ class RichTextInputBox extends StatefulWidget {
     this.onTapFile,
     this.onTapLocation,
     this.onSend,
-  }) : super(key: key);
+  });
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final Widget voiceRecordBar;
@@ -58,9 +58,9 @@ class _RichTextInputBoxState extends State<RichTextInputBox> {
 
   double get _opacity => (widget.enabled ? 1 : .4);
 
-  focus() => FocusScope.of(context).requestFocus(widget.focusNode);
+  void focus() => FocusScope.of(context).requestFocus(widget.focusNode);
 
-  unfocus() => FocusScope.of(context).requestFocus(FocusNode());
+  void unfocus() => FocusScope.of(context).requestFocus(FocusNode());
 
   void onTapSpeak() {
     if (!widget.enabled) return;

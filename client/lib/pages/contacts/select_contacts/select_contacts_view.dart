@@ -129,7 +129,7 @@ class SelectContactsPage extends StatelessWidget {
 }
 
 class CheckedConfirmView extends StatelessWidget {
-  CheckedConfirmView({Key? key}) : super(key: key);
+  CheckedConfirmView({super.key});
   final logic = Get.find<SelectContactsLogic>();
 
   @override
@@ -195,7 +195,7 @@ class CheckedConfirmView extends StatelessWidget {
 }
 
 class SelectedContactsListView extends StatelessWidget {
-  SelectedContactsListView({Key? key}) : super(key: key);
+  SelectedContactsListView({super.key});
   final logic = Get.find<SelectContactsLogic>();
 
   @override

@@ -76,7 +76,7 @@ class AccountSetupPage extends StatelessWidget {
                   if (showSwitchButton)
                     CupertinoSwitch(
                       value: switchOn,
-                      activeColor: Styles.c_0089FF,
+                      activeTrackColor: Styles.c_0089FF,
                       onChanged: onChanged,
                     ),
                   if (showRightArrow)

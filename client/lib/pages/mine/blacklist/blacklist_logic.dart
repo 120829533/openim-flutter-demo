@@ -9,7 +9,7 @@ class BlacklistLogic extends GetxController {
     blacklist.addAll(list);
   }
 
-  remove(BlacklistInfo info) async {
+  Future<void> remove(BlacklistInfo info) async {
     await OpenIM.iMManager.friendshipManager.removeBlacklist(
       userID: info.userID!,
     );
@@ -22,8 +22,4 @@ class BlacklistLogic extends GetxController {
     super.onReady();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

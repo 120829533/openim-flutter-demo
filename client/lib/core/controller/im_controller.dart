@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -7,25 +6,23 @@ import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:openim_live/openim_live.dart';
 
 import '../im_callback.dart';
+import '../cs_websocket.dart';
 
-class IMController extends GetxController with IMCallback, OpenIMLive {
+class IMController extends GetxController with IMCallback {
   late Rx<UserFullInfo> userInfo;
   late String atAllTag;
 
   @override
   void onClose() {
     super.close();
-    onCloseLive();
     super.onClose();
   }
 
   @override
   void onInit() async {
     super.onInit();
-    onInitLive();
     WidgetsBinding.instance.addPostFrameCallback((_) => initOpenIM());
   }
 
@@ -74,39 +71,6 @@ class IMController extends GetxController with IMCallback, OpenIMLive {
         onRecvNewMessage: recvNewMessage,
         onNewRecvMessageRevoked: recvMessageRevoked,
         onRecvOfflineNewMessage: recvOfflineMessage,
-        onRecvOnlineOnlyMessage: (msg) {
-          if (msg.isCustomType) {
-            final data = msg.customElem!.data;
-            final map = jsonDecode(data!);
-            final customType = map['customType'];
-            if (customType == CustomMessageType.callingInvite ||
-                customType == CustomMessageType.callingAccept ||
-                customType == CustomMessageType.callingReject ||
-                customType == CustomMessageType.callingCancel ||
-                customType == CustomMessageType.callingHungup) {
-              final signaling = SignalingInfo(invitation: InvitationInfo.fromJson(map['data']));
-              signaling.userID = signaling.invitation?.inviterUserID;
-
-              switch (customType) {
-                case CustomMessageType.callingInvite:
-                  receiveNewInvitation(signaling);
-                  break;
-                case CustomMessageType.callingAccept:
-                  inviteeAccepted(signaling);
-                  break;
-                case CustomMessageType.callingReject:
-                  inviteeRejected(signaling);
-                  break;
-                case CustomMessageType.callingCancel:
-                  invitationCancelled(signaling);
-                  break;
-                case CustomMessageType.callingHungup:
-                  beHangup(signaling);
-                  break;
-              }
-            }
-          }
-        },
       ))
       ..messageManager.setMsgSendProgressListener(OnMsgSendProgressListener(
         onProgress: progressCallback,
@@ -172,6 +136,15 @@ class IMController extends GetxController with IMCallback, OpenIMLive {
       userInfo = UserFullInfo.fromJson(user.toJson()).obs;
       _queryMyFullInfo();
       _queryAtAllTag();
+
+      // 客服账号 cs_agent_001 登录后启动 CS WebSocket 实时监听
+      if (userID == 'cs_agent_001') {
+        final chatToken = DataSp.chatToken;
+        if (chatToken != null && chatToken.isNotEmpty) {
+          Logger.print('[IM] cs_agent_001 登录，启动 CS WebSocket');
+          CsWebSocketService().init(chatToken, userID);
+        }
+      }
     } catch (e, s) {
       Logger.print('e: $e  s:$s');
       await _handleLoginRepeatError(e);
@@ -181,6 +154,7 @@ class IMController extends GetxController with IMCallback, OpenIMLive {
   }
 
   Future logout() {
+    CsWebSocketService().dispose();
     return OpenIM.iMManager.logout();
   }
 
@@ -205,7 +179,7 @@ class IMController extends GetxController with IMCallback, OpenIMLive {
     }
   }
 
-  _handleLoginRepeatError(e) async {
+  Future<void> _handleLoginRepeatError(e) async {
     if (e is PlatformException && (e.code == "13002" || e.code == '1507')) {
       await logout();
       await DataSp.removeLoginCertificate();

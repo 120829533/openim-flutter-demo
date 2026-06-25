@@ -1,4 +1,4 @@
-library openim_common;
+library;
 
 export 'src/apis.dart';
 export 'src/bridge/package_bridge.dart';

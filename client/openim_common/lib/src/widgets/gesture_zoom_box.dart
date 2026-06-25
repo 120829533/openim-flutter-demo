@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-library gesture_zoom_box;
+library;
 
 import 'dart:math';
 
@@ -31,7 +31,7 @@ class GestureZoomBox extends StatefulWidget {
   final Duration duration;
 
   const GestureZoomBox(
-      {Key? key,
+      {super.key,
       this.maxScale = 5.0,
       this.doubleTapScale = 2.0,
       required this.child,
@@ -39,8 +39,7 @@ class GestureZoomBox extends StatefulWidget {
       this.duration = const Duration(milliseconds: 200),
       this.onScaleListener})
       : assert(maxScale >= 1.0),
-        assert(doubleTapScale >= 1.0 && doubleTapScale <= maxScale),
-        super(key: key);
+        assert(doubleTapScale >= 1.0 && doubleTapScale <= maxScale);
 
   @override
   State<StatefulWidget> createState() {
@@ -66,7 +65,7 @@ class _GestureZoomBoxState extends State<GestureZoomBox> with TickerProviderStat
   bool _isScaling = false;
   bool _isDragging = false;
 
-  double _maxDragOver = 100;
+  final double _maxDragOver = 100;
 
   @override
   void initState() {
@@ -101,11 +100,11 @@ class _GestureZoomBoxState extends State<GestureZoomBox> with TickerProviderStat
     super.dispose();
   }
 
-  _onPointerUp(PointerUpEvent event) {
+  void _onPointerUp(PointerUpEvent event) {
     _doubleTapPosition = event.localPosition;
   }
 
-  _onDoubleTap() {
+  void _onDoubleTap() {
     double targetScale = _scale == 1.0 ? widget.doubleTapScale : 1.0;
     _animationScale(targetScale);
     if (targetScale == 1.0) {
@@ -113,7 +112,7 @@ class _GestureZoomBoxState extends State<GestureZoomBox> with TickerProviderStat
     }
   }
 
-  _onScaleStart(ScaleStartDetails details) {
+  void _onScaleStart(ScaleStartDetails details) {
     _scaleAnimController?.stop();
     _offsetAnimController?.stop();
     _isScaling = false;
@@ -122,7 +121,7 @@ class _GestureZoomBoxState extends State<GestureZoomBox> with TickerProviderStat
     _latestScaleUpdateDetails = null;
   }
 
-  _onScaleUpdate(ScaleUpdateDetails details) {
+  void _onScaleUpdate(ScaleUpdateDetails details) {
     if (_firstScaleUpdateDetails == null) {
       _firstScaleUpdateDetails = details;
       return;
@@ -137,7 +136,7 @@ class _GestureZoomBoxState extends State<GestureZoomBox> with TickerProviderStat
     });
   }
 
-  _scaling(ScaleUpdateDetails details) {
+  void _scaling(ScaleUpdateDetails details) {
     if (_isDragging) {
       return;
     }
@@ -173,7 +172,7 @@ class _GestureZoomBoxState extends State<GestureZoomBox> with TickerProviderStat
     _latestScaleUpdateDetails = details;
   }
 
-  _dragging(ScaleUpdateDetails details) {
+  void _dragging(ScaleUpdateDetails details) {
     if (_isScaling) {
       return;
     }
@@ -210,7 +209,7 @@ class _GestureZoomBoxState extends State<GestureZoomBox> with TickerProviderStat
     _latestScaleUpdateDetails = details;
   }
 
-  _onScaleEnd(ScaleEndDetails details) {
+  void _onScaleEnd(ScaleEndDetails details) {
     final size = context.size;
 
     if (size == null) {
@@ -274,7 +273,7 @@ class _GestureZoomBoxState extends State<GestureZoomBox> with TickerProviderStat
     _latestScaleUpdateDetails = null;
   }
 
-  _animationScale(double targetScale) {
+  void _animationScale(double targetScale) {
     _scaleAnimController?.dispose();
     final scaleAnimController = _scaleAnimController = AnimationController(vsync: this, duration: widget.duration);
     Animation anim = Tween<double>(begin: _scale, end: targetScale).animate(scaleAnimController);
@@ -297,7 +296,7 @@ class _GestureZoomBoxState extends State<GestureZoomBox> with TickerProviderStat
     scaleAnimController.forward();
   }
 
-  _animationOffset(Offset targetOffset) {
+  void _animationOffset(Offset targetOffset) {
     _offsetAnimController?.dispose();
     final offsetAnimController = _offsetAnimController = AnimationController(vsync: this, duration: widget.duration);
     Animation anim = offsetAnimController.drive(Tween<Offset>(begin: _offset, end: targetOffset));

@@ -21,32 +21,32 @@ class Styles {
   static Color c_FFE1DD = const Color(0xFFFFE1DD);
   static Color c_707070 = const Color(0xFF707070);
 
-  static Color c_92B3E0_opacity50 = c_92B3E0.withOpacity(.5);
-  static Color c_E8EAEF_opacity50 = c_E8EAEF.withOpacity(.5);
+  static Color c_92B3E0_opacity50 = c_92B3E0.withValues(alpha: .5);
+  static Color c_E8EAEF_opacity50 = c_E8EAEF.withValues(alpha: .5);
   static Color c_F4F5F7 = const Color(0xFFF4F5F7);
   static Color c_CCE7FE = const Color(0xFFCCE7FE);
 
-  static Color c_FFFFFF_opacity0 = c_FFFFFF.withOpacity(.0);
-  static Color c_FFFFFF_opacity70 = c_FFFFFF.withOpacity(.7);
-  static Color c_FFFFFF_opacity50 = c_FFFFFF.withOpacity(.5);
-  static Color c_0089FF_opacity10 = c_0089FF.withOpacity(.1);
-  static Color c_0089FF_opacity20 = c_0089FF.withOpacity(.2);
-  static Color c_0089FF_opacity50 = c_0089FF.withOpacity(.5);
-  static Color c_FF381F_opacity10 = c_FF381F.withOpacity(.1);
-  static Color c_8E9AB0_opacity13 = c_8E9AB0.withOpacity(.13);
-  static Color c_8E9AB0_opacity15 = c_8E9AB0.withOpacity(.15);
-  static Color c_8E9AB0_opacity16 = c_8E9AB0.withOpacity(.16);
-  static Color c_8E9AB0_opacity30 = c_8E9AB0.withOpacity(.3);
-  static Color c_8E9AB0_opacity50 = c_8E9AB0.withOpacity(.5);
-  static Color c_0C1C33_opacity30 = c_0C1C33.withOpacity(.3);
-  static Color c_0C1C33_opacity60 = c_0C1C33.withOpacity(.6);
-  static Color c_0C1C33_opacity85 = c_0C1C33.withOpacity(.85);
-  static Color c_0C1C33_opacity80 = c_0C1C33.withOpacity(.8);
-  static Color c_FF381F_opacity70 = c_FF381F.withOpacity(.7);
-  static Color c_000000_opacity70 = c_000000.withOpacity(.7);
-  static Color c_000000_opacity15 = c_000000.withOpacity(.15);
-  static Color c_000000_opacity12 = c_000000.withOpacity(.12);
-  static Color c_000000_opacity4 = c_000000.withOpacity(.04);
+  static Color c_FFFFFF_opacity0 = c_FFFFFF.withValues(alpha: .0);
+  static Color c_FFFFFF_opacity70 = c_FFFFFF.withValues(alpha: .7);
+  static Color c_FFFFFF_opacity50 = c_FFFFFF.withValues(alpha: .5);
+  static Color c_0089FF_opacity10 = c_0089FF.withValues(alpha: .1);
+  static Color c_0089FF_opacity20 = c_0089FF.withValues(alpha: .2);
+  static Color c_0089FF_opacity50 = c_0089FF.withValues(alpha: .5);
+  static Color c_FF381F_opacity10 = c_FF381F.withValues(alpha: .1);
+  static Color c_8E9AB0_opacity13 = c_8E9AB0.withValues(alpha: .13);
+  static Color c_8E9AB0_opacity15 = c_8E9AB0.withValues(alpha: .15);
+  static Color c_8E9AB0_opacity16 = c_8E9AB0.withValues(alpha: .16);
+  static Color c_8E9AB0_opacity30 = c_8E9AB0.withValues(alpha: .3);
+  static Color c_8E9AB0_opacity50 = c_8E9AB0.withValues(alpha: .5);
+  static Color c_0C1C33_opacity30 = c_0C1C33.withValues(alpha: .3);
+  static Color c_0C1C33_opacity60 = c_0C1C33.withValues(alpha: .6);
+  static Color c_0C1C33_opacity85 = c_0C1C33.withValues(alpha: .85);
+  static Color c_0C1C33_opacity80 = c_0C1C33.withValues(alpha: .8);
+  static Color c_FF381F_opacity70 = c_FF381F.withValues(alpha: .7);
+  static Color c_000000_opacity70 = c_000000.withValues(alpha: .7);
+  static Color c_000000_opacity15 = c_000000.withValues(alpha: .15);
+  static Color c_000000_opacity12 = c_000000.withValues(alpha: .12);
+  static Color c_000000_opacity4 = c_000000.withValues(alpha: .04);
 
   static TextStyle ts_FFFFFF_21sp = TextStyle(
     color: c_FFFFFF,

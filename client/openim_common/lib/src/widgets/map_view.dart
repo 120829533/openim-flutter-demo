@@ -8,12 +8,12 @@ import 'package:openim_common/openim_common.dart';
 
 class MapView extends StatelessWidget {
   const MapView({
-    Key? key,
+    super.key,
     required this.latitude,
     required this.longitude,
     required this.address1,
     required this.address2,
-  }) : super(key: key);
+  });
   final double latitude;
   final double longitude;
   final String address1;
@@ -87,7 +87,7 @@ class MapView extends StatelessWidget {
     );
   }
 
-  _openMapSheet() async {
+  Future<void> _openMapSheet() async {
     final availableMaps = await ml.MapLauncher.installedMaps;
     Get.bottomSheet(
       BottomSheetView(
@@ -118,7 +118,7 @@ class MapView extends StatelessWidget {
     return map.mapName;
   }
 
-  _launcherMap(ml.AvailableMap map) async {
+  Future<void> _launcherMap(ml.AvailableMap map) async {
     await ml.MapLauncher.showMarker(
       mapType: map.mapType,
       coords: ml.Coords(latitude, longitude),

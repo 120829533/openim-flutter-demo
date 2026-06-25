@@ -26,21 +26,17 @@ dependencies:
   lpinyin: ^2.0.3
   rxdart: ^0.28.0
   permission_handler: ^11.0.1
-  wechat_assets_picker: ^9.8.0
-  wechat_camera_picker: ^4.4.0
   extended_image: ^10.0.1
   country_picker: ^2.0.20
   image_gallery_saver_plus: ^4.0.1
   file_picker: ^10.3.3
   open_filex: ^4.3.2
   lottie: ^3.3.1
-  qr_code_scanner_plus: ^2.0.6
   qr_flutter: ^4.0.0
   # scan: ^1.6.0  # Temporarily disabled due to compatibility issues
   image_cropper: ^9.1.0
   package_info_plus: ^8.3.1
   search_keyword_text: ^0.0.2
-  animated_text_kit: ^4.2.2
   crypto: ^3.0.2
   url_launcher: ^6.1.10
   common_utils: ^2.1.0
@@ -56,21 +52,13 @@ dependencies:
   webview_flutter: ^4.10.0
   webview_flutter_wkwebview: ^3.17.0
   webview_flutter_android: ^4.3.1
-  # vibration: ^1.9.0  # Temporarily disabled due to compatibility issues
-  scroll_to_index: ^3.0.1
-  flutter_screen_lock: ^9.2.2+2
-  local_auth: ^2.2.0
-  gesture_password_widget: ^2.0.1
   sound_mode: ^3.1.1
   device_info_plus: ^11.3.0
-  extended_text_field: ^16.0.2
   extended_text: ^15.0.2
   animate_do: ^4.2.0
   emoji_picker_flutter: ^4.3.0
-  should_rebuild: ^1.0.1
   record: ^6.0.0
   mime: ^2.0.0
-  flutter_keyboard_visibility: ^6.0.0
   rotated_corner_decoration: ^2.1.0
   chewie: ^1.13.0
   video_player: ^2.9.1
@@ -79,7 +67,6 @@ dependencies:
   syncfusion_flutter_sliders: ^31.1.19
   flutter_map: ^8.2.1
   pull_to_refresh_new: ^2.0.5
-  geolocator: ^14.0.2
   fixnum: ^1.1.0
   protobuf: ^4.2.0
   intl: ^0.20.2
@@ -88,15 +75,12 @@ dependencies:
   media_kit: ^1.1.11
   media_kit_video: ^1.3.0
   media_kit_libs_video: ^1.0.6
-  firebase_core: 3.15.2
-  firebase_messaging: 15.2.10
-  google_api_availability: ^5.0.0
-  connectivity_plus: ^6.1.5
-  flutter_media_store: ^1.3.1
   flutter_picker_plus: ^1.1.3
   screen_brightness: ^2.1.7
   volume_controller: ^3.4.0
   flutter_openim_sdk: ^3.8.3+hotfix.12
+  firebase_core: 3.15.2
+  firebase_messaging: 15.2.10
 
   flutter_easyloading: ^3.0.5
 dev_dependencies:

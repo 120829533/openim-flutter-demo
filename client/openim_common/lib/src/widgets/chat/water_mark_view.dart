@@ -7,7 +7,7 @@ import 'package:openim_common/openim_common.dart';
 
 class WaterMarkBgView extends StatelessWidget {
   const WaterMarkBgView({
-    Key? key,
+    super.key,
     this.path,
     this.text = '',
     this.newMessageCount = 0,
@@ -18,7 +18,7 @@ class WaterMarkBgView extends StatelessWidget {
     this.bottomView,
     this.floatView,
     this.onSeeNewMessage,
-  }) : super(key: key);
+  });
   final String? path;
   final String text;
   final int newMessageCount;
@@ -71,7 +71,7 @@ class WaterMarkBgView extends StatelessWidget {
   Widget _buildWaterMarkTextView({required BuildContext context}) {
     var style = textStyle ??
         TextStyle(
-          color: Color(0x707070).withOpacity(0.25),
+          color: Color(0x00707070).withValues(alpha: 0.25),
           fontSize: 16.sp,
         );
     double screenW = MediaQuery.of(context).size.width;

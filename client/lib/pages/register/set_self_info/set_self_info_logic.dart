@@ -33,7 +33,7 @@ class SetSelfInfoLogic extends GetxController {
     super.onInit();
   }
 
-  _onChanged() {
+  void _onChanged() {
     nickname.value = nicknameCtrl.text.trim();
   }
 

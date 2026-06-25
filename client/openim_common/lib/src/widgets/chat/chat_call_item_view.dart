@@ -4,10 +4,10 @@ import 'package:openim_common/openim_common.dart';
 
 class ChatCallItemView extends StatelessWidget {
   const ChatCallItemView({
-    Key? key,
+    super.key,
     required this.type,
     required this.content,
-  }) : super(key: key);
+  });
 
   final String content;
   final String type;

@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
@@ -8,9 +10,9 @@ import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 
 import '../../core/controller/app_controller.dart';
 import '../../core/controller/im_controller.dart';
+import '../../core/cs_websocket.dart';
 import '../../core/im_callback.dart';
 import '../../routes/app_navigator.dart';
-import '../contacts/add_by_search/add_by_search_logic.dart';
 import '../home/home_logic.dart';
 
 class ConversationLogic extends GetxController {
@@ -27,6 +29,17 @@ class ConversationLogic extends GetxController {
   bool reInstall = false;
 
   final onChangeConversations = <ConversationInfo>[];
+
+  /// CS 访客名称映射：openim_user_id -> visitor_name
+  final _visitorNames = <String, String>{};
+  /// CS 访客头像映射：openim_user_id -> avatar
+  final _visitorAvatars = <String, String>{};
+  /// 当前用户是否为客服
+  bool _isCsAgent = false;
+  /// CS 本地会话缓存：conversationId -> ConversationInfo
+  final _csConversations = <String, ConversationInfo>{};
+  /// CS WebSocket 消息订阅
+  StreamSubscription<CsMessageData>? _csMessageSub;
 
   @override
   void onInit() {
@@ -60,13 +73,149 @@ class ConversationLogic extends GetxController {
         }
       }
     });
+
+    // 检查是否为客服账号，加载访客名称
+    _initCsAgent();
     super.onInit();
+  }
+
+  /// 初始化客服相关功能
+  void _initCsAgent() async {
+    final userId = DataSp.userID;
+    if (userId == 'cs_agent_001') {
+      _isCsAgent = true;
+      // 加载访客名称映射
+      _loadVisitorNames();
+      // 监听 CS WebSocket 消息，收到新消息时更新列表
+      _csMessageSub = CsWebSocketService().onMessage.listen((msg) {
+        Logger.print('[Conv] CS 新消息: sender=${msg.senderId} content=${msg.content}');
+        _handleCsIncomingMessage(msg);
+      });
+    }
+  }
+
+  /// 处理 CS WebSocket 收到的新消息
+  void _handleCsIncomingMessage(CsMessageData msg) {
+    // 确保访客名称已缓存
+    if (!_visitorNames.containsKey(msg.senderId)) {
+      _loadVisitorName(msg.senderId);
+    }
+
+    final convId = 'cs_conv_${msg.senderId}';
+    final existing = _csConversations[convId];
+    if (existing != null) {
+      // 更新已有会话
+      existing.unreadCount = (existing.unreadCount ?? 0) + 1;
+      existing.latestMsg = Message(
+        sendID: msg.senderId,
+        senderNickname: _visitorNames[msg.senderId] ?? msg.senderId,
+        contentType: MessageType.text,
+        textElem: TextElem(content: msg.content),
+        sendTime: DateTime.now().millisecondsSinceEpoch,
+      );
+      existing.latestMsgSendTime = DateTime.now().millisecondsSinceEpoch;
+    } else {
+      // 新建会话
+      final visitorName = _visitorNames[msg.senderId] ?? msg.senderId;
+      final avatar = _visitorAvatars[msg.senderId];
+      final newConv = ConversationInfo(
+        conversationID: convId,
+        userID: msg.senderId,
+        showName: visitorName,
+        faceURL: avatar,
+        conversationType: ConversationType.single,
+        unreadCount: 1,
+        latestMsg: Message(
+          sendID: msg.senderId,
+          senderNickname: visitorName,
+          contentType: MessageType.text,
+          textElem: TextElem(content: msg.content),
+          sendTime: DateTime.now().millisecondsSinceEpoch,
+        ),
+        latestMsgSendTime: DateTime.now().millisecondsSinceEpoch,
+      );
+      _csConversations[convId] = newConv;
+    }
+    // 刷新 UI
+    _mergeAndRefreshList();
+  }
+
+  /// 动态加载单个访客名称
+  void _loadVisitorName(String visitorUserId) async {
+    try {
+      final dio = Dio(BaseOptions(baseUrl: Config.imApiUrl));
+      final resp = await dio.get('/api/cs/visitor-names');
+      final data = resp.data;
+      if (data is Map && data['errCode'] == 0) {
+        final visitors = data['data']?['visitors'] as Map<String, dynamic>?;
+        if (visitors != null && visitors.containsKey(visitorUserId)) {
+          final v = visitors[visitorUserId] as Map<String, dynamic>?;
+          if (v != null) {
+            _visitorNames[visitorUserId] = v['name'] as String? ?? visitorUserId;
+            _visitorAvatars[visitorUserId] = v['avatar'] as String? ?? '';
+          }
+        }
+      }
+    } catch (e) {
+      Logger.print('[Conv] 加载访客名称失败: $e');
+    }
+  }
+
+  /// 合并 OpenIM SDK 会话和 CS 本地会话，刷新列表
+  void _mergeAndRefreshList() async {
+    List<ConversationInfo> sdkConvs;
+    try {
+      sdkConvs = await OpenIM.iMManager.conversationManager.getConversationListSplit(offset: 0, count: pageSize);
+    } catch (e) {
+      sdkConvs = [];
+    }
+    final merged = <ConversationInfo>[...sdkConvs];
+    // 插入 CS 会话（去重）
+    for (final csConv in _csConversations.values) {
+      final idx = merged.indexWhere((e) => e.conversationID == csConv.conversationID);
+      if (idx >= 0) {
+        merged[idx] = csConv;
+      } else {
+        merged.add(csConv);
+      }
+    }
+    // 按时间排序
+    merged.sort((a, b) => (b.latestMsgSendTime ?? 0).compareTo(a.latestMsgSendTime ?? 0));
+    list.assignAll(merged);
+  }
+
+  /// 从 API 加载访客名称映射
+  void _loadVisitorNames() async {
+    try {
+      final dio = Dio(BaseOptions(baseUrl: Config.imApiUrl));
+      final resp = await dio.get('/api/cs/visitor-names');
+      final data = resp.data;
+      if (data is Map && data['errCode'] == 0) {
+        final visitors = data['data']?['visitors'] as Map<String, dynamic>?;
+        if (visitors != null) {
+          _visitorNames.clear();
+          _visitorAvatars.clear();
+          for (final entry in visitors.entries) {
+            final v = entry.value as Map<String, dynamic>?;
+            if (v != null) {
+              _visitorNames[entry.key] = v['name'] as String? ?? entry.key;
+              _visitorAvatars[entry.key] = v['avatar'] as String? ?? '';
+            }
+          }
+          Logger.print('[Conv] 已加载 ${_visitorNames.length} 个访客名称');
+        }
+      }
+    } catch (e) {
+      Logger.print('[Conv] 加载访客名称失败: $e');
+    }
   }
 
   @override
   void onClose() {
     list.clear();
     reInstall = false;
+    _csMessageSub?.cancel();
+    _csConversations.clear();
     super.onClose();
   }
 
@@ -136,8 +285,9 @@ class ConversationLogic extends GetxController {
 
       final text = IMUtils.parseNtf(info.latestMsg!, isConversation: true);
       if (text != null) return text;
-      if (info.isSingleChat || info.latestMsg!.sendID == OpenIM.iMManager.userID)
+      if (info.isSingleChat || info.latestMsg!.sendID == OpenIM.iMManager.userID) {
         return IMUtils.parseMsg(info.latestMsg!, isConversation: true);
+      }
 
       return "${info.latestMsg!.senderNickname}: ${IMUtils.parseMsg(info.latestMsg!, isConversation: true)} ";
     } catch (e, s) {
@@ -155,10 +305,23 @@ class ConversationLogic extends GetxController {
   }
 
   String getShowName(ConversationInfo info) {
+    // CS 客服会话：优先使用访客名称
+    if (_isCsAgent && info.isSingleChat) {
+      final visitorName = _visitorNames[info.userID];
+      if (visitorName != null && visitorName.isNotEmpty) {
+        return visitorName;
+      }
+    }
     if (info.showName == null || info.showName.isBlank!) {
       return info.userID!;
     }
     return info.showName!;
+  }
+
+  /// 判断是否为 CS 客服会话
+  bool isCsConversation(ConversationInfo info) {
+    if (!_isCsAgent) return false;
+    return _csConversations.containsKey(info.conversationID);
   }
 
   String getTime(ConversationInfo info) {
@@ -231,7 +394,7 @@ class ConversationLogic extends GetxController {
     list.clear();
   }
 
-  _request() async {
+  Future<List<ConversationInfo>> _request() async {
     final temp = <ConversationInfo>[];
 
     while (true) {
@@ -318,11 +481,9 @@ class ConversationLogic extends GetxController {
     }
   }
 
-  addFriend() => AppNavigator.startAddContactsBySearch(searchType: SearchType.user);
-
-  createGroup() => AppNavigator.startCreateGroup(defaultCheckedList: [OpenIM.iMManager.userInfo]);
-
-  addGroup() => AppNavigator.startAddContactsBySearch(searchType: SearchType.group);
+  dynamic addFriend() => AppNavigator.startAddContactsBySearch(searchType: null);
+  dynamic createGroup() => AppNavigator.startCreateGroup(defaultCheckedList: [OpenIM.iMManager.userInfo]);
+  dynamic addGroup() => AppNavigator.startAddContactsBySearch(searchType: null);
 
   void globalSearch() => AppNavigator.startGlobalSearch();
 }

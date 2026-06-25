@@ -19,8 +19,8 @@ import 'package:video_player/video_player.dart';
 class CustomMaterialControls extends StatefulWidget {
   const CustomMaterialControls({
     this.showPlayButton = true,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final bool showPlayButton;
 
@@ -156,7 +156,7 @@ class _MaterialControlsState extends State<CustomMaterialControls> with SingleTi
                   width: 38,
                   height: 38,
                   decoration: BoxDecoration(
-                    color: Colors.black87.withOpacity(0.4),
+                    color: Colors.black87.withValues(alpha: 0.4),
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -434,7 +434,7 @@ class _MaterialControlsState extends State<CustomMaterialControls> with SingleTi
             text: '/ ${formatDuration(duration)}',
             style: TextStyle(
               fontSize: 14.0,
-              color: Colors.white.withOpacity(.75),
+              color: Colors.white.withValues(alpha: .75),
               fontWeight: FontWeight.normal,
             ),
           )
@@ -606,8 +606,8 @@ class _MaterialControlsState extends State<CustomMaterialControls> with SingleTi
             ChewieProgressColors(
               playedColor: Theme.of(context).colorScheme.secondary,
               handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
-              backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
+              bufferedColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+              backgroundColor: Theme.of(context).disabledColor.withValues(alpha: .5),
             ),
       ),
     );

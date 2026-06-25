@@ -4,10 +4,10 @@ import 'package:openim_common/openim_common.dart';
 
 class ChatTimelineView extends StatelessWidget {
   const ChatTimelineView({
-    Key? key,
+    super.key,
     required this.timeStr,
     this.margin,
-  }) : super(key: key);
+  });
   final String timeStr;
   final EdgeInsetsGeometry? margin;
 

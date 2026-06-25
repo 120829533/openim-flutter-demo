@@ -28,7 +28,7 @@ class GlobalSearchLogic extends CommonSearchLogic {
   int fileMessagePageIndex = 1;
   int count = 20;
 
-  switchTab(int index) {
+  void switchTab(int index) {
     this.index.value = index;
   }
 
@@ -60,7 +60,7 @@ abstract class CommonSearchLogic extends GetxController {
     super.onClose();
   }
 
-  _clearInput() {
+  void _clearInput() {
     if (searchKey.isEmpty) {
       clearList();
     }

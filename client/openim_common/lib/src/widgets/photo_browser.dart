@@ -104,7 +104,7 @@ class _MediaBrowserState extends State<MediaBrowser> with TickerProviderStateMix
         slidePageBackgroundHandler: (offset, pageSize) {
           double rate = 1 - (offset.dy.abs() / (size.height / 2));
           rate = rate > 0 ? rate : 0;
-          return Colors.black.withOpacity(rate);
+          return Colors.black.withValues(alpha: rate);
         },
         child: GestureDetector(
           onTap: () {

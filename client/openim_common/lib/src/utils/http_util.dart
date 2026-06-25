@@ -30,7 +30,7 @@ class HttpUtil {
         return handler.next(options); //continue
       }, onResponse: (response, handler) {
         return handler.next(response); // continue
-      }, onError: (DioError e, handler) {
+      }, onError: (DioException e, handler) {
         return handler.next(e); //continue
       }));
 

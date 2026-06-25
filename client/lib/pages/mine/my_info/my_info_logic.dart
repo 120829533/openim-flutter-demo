@@ -105,10 +105,6 @@ class MyInfoLogic extends GetxController {
     super.onReady();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 
   void _queryMyFullIno() async {
     final info = await LoadingView.singleton.wrap(
@@ -126,5 +122,5 @@ class MyInfoLogic extends GetxController {
     }
   }
 
-  static _trimNullStr(String? value) => IMUtils.emptyStrToNull(value);
+  static String? _trimNullStr(String? value) => IMUtils.emptyStrToNull(value);
 }

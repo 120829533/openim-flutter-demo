@@ -5,14 +5,14 @@ import 'package:openim_common/openim_common.dart';
 
 class BottomSheetView extends StatelessWidget {
   const BottomSheetView({
-    Key? key,
+    super.key,
     required this.items,
     this.itemHeight,
     this.textStyle,
     this.mainAxisAlignment,
     this.isOverlaySheet = false,
     this.onCancel,
-  }) : super(key: key);
+  });
   final List<SheetItem> items;
   final double? itemHeight;
   final TextStyle? textStyle;
@@ -120,10 +120,10 @@ class BottomSheetView extends StatelessWidget {
         ),
       );
 
-  _text(String label, TextStyle? style) =>
+  TextView _text(String label, TextStyle? style) =>
       label.toText..style = (style ?? textStyle ?? Styles.ts_0C1C33_17sp);
 
-  _image(String icon) => icon.toImage
+  ImageView _image(String icon) => icon.toImage
     ..width = 24.w
     ..height = 24.h;
 }

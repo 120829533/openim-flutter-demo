@@ -4,10 +4,10 @@ import 'package:openim_common/openim_common.dart';
 
 class SyncStatusView extends StatelessWidget {
   const SyncStatusView({
-    Key? key,
+    super.key,
     required this.isFailed,
     required this.statusStr,
-  }) : super(key: key);
+  });
   final bool isFailed;
   final String statusStr;
 

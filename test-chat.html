@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>在线客服测试</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; min-height: 100vh; }
+    .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+    h1 { text-align: center; margin-bottom: 30px; color: #333; }
+    .status-bar { background: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #ccc; }
+    .status-dot.connected { background: #52c41a; }
+    .status-text { font-size: 14px; color: #666; }
+    .chat-box { background: #fff; border-radius: 12px; padding: 20px; height: 500px; overflow-y: auto; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .message { margin-bottom: 12px; display: flex; }
+    .message.user { justify-content: flex-end; }
+    .message.bot { justify-content: flex-start; }
+    .message .bubble { max-width: 70%; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.5; word-break: break-word; }
+    .message.user .bubble { background: #1890ff; color: #fff; border-bottom-right-radius: 4px; }
+    .message.bot .bubble { background: #f0f0f0; color: #333; border-bottom-left-radius: 4px; }
+    .input-box { display: flex; gap: 10px; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .input-box input { flex: 1; border: 1px solid #e8e8e8; border-radius: 8px; padding: 10px 14px; font-size: 14px; outline: none; }
+    .input-box input:focus { border-color: #1890ff; }
+    .input-box button { background: #1890ff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; cursor: pointer; white-space: nowrap; }
+    .input-box button:hover { background: #40a9ff; }
+    .input-box button:disabled { background: #ccc; cursor: not-allowed; }
+    .log-box { background: #1a1a2e; color: #a0a0a0; border-radius: 12px; padding: 16px; height: 200px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.6; margin-top: 20px; }
+    .log-box .log-info { color: #52c41a; }
+    .log-box .log-error { color: #ff4d4f; }
+    .log-box .log-warn { color: #faad14; }
+    h3 { color: #666; margin-bottom: 10px; }
+    .info-bar { background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #1890ff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 在线客服 - 本地测试</h1>
+
+    <div class="info-bar">
+      API: https://yunnaguanjian.com:8089/api/cs/visitor/send &nbsp;|&nbsp; WS: wss://yunnaguanjian.com:8089/ws/chat
+    </div>
+
+    <div class="status-bar">
+      <div class="status-dot" id="statusDot"></div>
+      <div>
+        <div class="status-text" id="statusText">未连接</div>
+        <div style="font-size:12px;color:#999;" id="visitorId">-</div>
+      </div>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+      <div class="message bot"><div class="bubble">您好！我是云娜法兰在线客服，请问有什么可以帮您？</div></div>
+    </div>
+
+    <div class="input-box">
+      <input type="text" id="msgInput" placeholder="输入消息..." />
+      <button id="sendBtn" onclick="sendMessage()">发送</button>
+    </div>
+
+    <h3 style="margin-top:24px;">WebSocket 日志</h3>
+    <div class="log-box" id="logBox"></div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://yunnaguanjian.com:8089/api/cs';
+    const WS_URL = 'wss://yunnaguanjian.com:8089/ws/chat';
+    let session = null;
+    let ws = null;
+    const chatBox = document.getElementById('chatBox');
+    const msgInput = document.getElementById('msgInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const visitorIdEl = document.getElementById('visitorId');
+    const logBox = document.getElementById('logBox');
+
+    function log(msg, type = 'info') {
+      const now = new Date().toLocaleTimeString();
+      const cls = type === 'error' ? 'log-error' : type === 'warn' ? 'log-warn' : 'log-info';
+      logBox.innerHTML += `<div class="${cls}">[${now}] ${msg}</div>`;
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function addMessage(text, isUser) {
+      chatBox.innerHTML += `<div class="message ${isUser ? 'user' : 'bot'}"><div class="bubble">${text}</div></div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = msgInput.value.trim();
+      if (!text) return;
+      addMessage(text, true);
+      msgInput.value = '';
+      sendBtn.disabled = true;
+
+      try {
+        // 首次发送：创建会话
+        if (!session) {
+          log('POST /api/cs/visitor/send ...');
+          const resp = await fetch(`${API_BASE}/visitor/send`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: text,
+              visitor_name: `本地测试_${Date.now()}`,
+              source_page: '/test',
+              visitor_ip: '192.168.1.1',
+            }),
+          });
+          const json = await resp.json();
+          log(`API 响应: ${JSON.stringify(json)}`);
+
+          if (json.errCode === 0 && json.data) {
+            session = {
+              conversation_id: json.data.conversation_id,
+              visitor_id: json.data.visitor_id,
+              token: json.data.token,
+              cs_user_id: json.data.cs_user_id || 'cs_agent_001',
+            };
+            visitorIdEl.textContent = `访客ID: ${session.visitor_id}`;
+            log(`会话已创建: ${session.conversation_id}`, 'info');
+
+            // 连接 WebSocket
+            connectWebSocket(session.token);
+
+            // 加载历史消息
+            await loadHistory(session.conversation_id);
+          } else {
+            log(`发送失败: ${json.errMsg}`, 'error');
+            addMessage('❌ 发送失败: ' + (json.errMsg || '未知错误'), false);
+          }
+        } else {
+          // 已有会话，通过 WebSocket 发送
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+              type: 'chat',
+              data: {
+                conversation_id: session.conversation_id,
+                msg_type: 1,
+                content: text,
+              }
+            }));
+            log('通过 WebSocket 发送消息', 'info');
+          } else {
+            log('WebSocket 不可用，降级为 REST API', 'warn');
+            await fetch(`${API_BASE}/visitor/send`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                message: text,
+                visitor_name: session.visitor_id,
+                source_page: '/test',
+              }),
+            });
+          }
+        }
+      } catch (e) {
+        log(`发送异常: ${e.message}`, 'error');
+        addMessage('❌ 发送失败: ' + e.message, false);
+      } finally {
+        sendBtn.disabled = false;
+        msgInput.focus();
+      }
+    }
+
+    function connectWebSocket(token) {
+      if (ws) { ws.close(); }
+      const url = `${WS_URL}?token=${token}`;
+      log(`连接 WebSocket: ${WS_URL}`, 'info');
+
+      ws = new WebSocket(url);
+
+      ws.onopen = () => {
+        log('WebSocket 已连接', 'info');
+        statusDot.classList.add('connected');
+        statusText.textContent = '已连接';
+
+        // 发送 login
+        ws.send(JSON.stringify({
+          type: 'login',
+          data: { token }
+        }));
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          log(`收到: ${msg.type}`, 'info');
+
+          switch (msg.type) {
+            case 'login_ack':
+              log(`登录确认: ${JSON.stringify(msg.data)}`, 'info');
+              // 拉取离线消息
+              ws.send(JSON.stringify({ type: 'pull_offline' }));
+              break;
+
+            case 'message':
+              log(`收到客服消息: ${JSON.stringify(msg.data)}`, 'info');
+              handleIncomingMessage(msg.data);
+              break;
+
+            case 'pull_offline_ack':
+              log(`离线消息: ${msg.data?.count || 0} 条`, 'info');
+              if (msg.data?.messages) {
+                for (const m of msg.data.messages) {
+                  handleIncomingMessage(m);
+                }
+              }
+              break;
+
+            case 'chat_ack':
+              log(`消息发送确认: ${JSON.stringify(msg.data)}`, 'info');
+              break;
+
+            case 'pong':
+              break;
+
+            case 'error':
+              log(`错误: ${JSON.stringify(msg.data)}`, 'error');
+              break;
+
+            default:
+              log(`未知类型: ${msg.type}`, 'warn');
+          }
+        } catch (e) {
+          log(`解析失败: ${e.message}`, 'error');
+        }
+      };
+
+      ws.onclose = (event) => {
+        log(`WebSocket 断开: code=${event.code}`, 'warn');
+        statusDot.classList.remove('connected');
+        statusText.textContent = '已断开';
+
+        // 自动重连
+        if (session?.token) {
+          setTimeout(() => {
+            log('尝试重连...', 'warn');
+            connectWebSocket(session.token);
+          }, 3000);
+        }
+      };
+
+      ws.onerror = (error) => {
+        log('WebSocket 错误', 'error');
+      };
+
+      // 心跳
+      setInterval(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'heartbeat' }));
+        }
+      }, 30000);
+    }
+
+    function handleIncomingMessage(msgData) {
+      if (!msgData) return;
+      const senderId = msgData.senderId || msgData.sender_id || '';
+      const content = msgData.content || '';
+      if (senderId === session?.visitor_id) return;
+      if (senderId === 'cs_agent_001' || senderId === session?.cs_user_id) {
+        addMessage(content, false);
+      }
+    }
+
+    async function loadHistory(conversationId) {
+      try {
+        log(`加载历史消息: ${conversationId}`, 'info');
+        const resp = await fetch(`${API_BASE}/visitor/history?conversation_id=${conversationId}`);
+        const json = await resp.json();
+        if (json.errCode === 0 && json.data?.messages) {
+          log(`历史消息: ${json.data.messages.length} 条`, 'info');
+          for (const m of json.data.messages) {
+            addMessage(m.content, m.direction === 'visitor');
+          }
+        }
+      } catch (e) {
+        log(`加载历史消息失败: ${e.message}`, 'error');
+      }
+    }
+
+    msgInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    log('页面已加载，等待发送消息...', 'info');
+  </script>
+</body>
+</html>

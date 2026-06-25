@@ -155,9 +155,24 @@ async def account_register(req: dict):
         return _err(30001, "验证码错误或已过期")
 
     # 检查是否已注册
+    conditions = []
+    params = []
+    if phone:
+        conditions.append("phone = %s")
+        params.append(phone)
+    if email:
+        conditions.append("email = %s")
+        params.append(email)
+    if account:
+        conditions.append("account = %s")
+        params.append(account)
+    if not conditions:
+        conditions.append("phone = %s")
+        params.append(phone or "")
+
     existing = await fetchone(
-        "SELECT id FROM users WHERE phone = %s OR email = %s OR account = %s",
-        (phone, email, account or phone),
+        f"SELECT id FROM users WHERE {' OR '.join(conditions)}",
+        tuple(params),
     )
     if existing:
         return _err(20001, "账号已注册")
@@ -469,3 +484,56 @@ async def client_config():
         "discoverPageURL": settings.DISCOVER_PAGE_URL,
         "allowSendMsgNotFriend": settings.ALLOW_SEND_MSG_NOT_FRIEND,
     })
+
+
+# ===== 同步辅助端点（Flutter SDK 登录后自动调用，返回空数据即可） =====
+
+@router.post("/user/get_users_info")
+async def get_users_info(req: dict):
+    """批量获取用户信息（同步用）。"""
+    user_ids = req.get("userIDs") or []
+    if not user_ids:
+        return _ok({"users": []})
+    return await user_find_full(req)
+
+
+@router.post("/friend/get_incremental_friends")
+async def get_incremental_friends(req: dict):
+    """增量同步好友列表（桩实现）。"""
+    return _ok({"friends": [], "version": "0"})
+
+
+@router.post("/group/get_incremental_join_groups")
+async def get_incremental_groups(req: dict):
+    """增量同步群组列表（桩实现）。"""
+    return _ok({"groups": [], "version": "0"})
+
+
+@router.post("/conversation/get_incremental_conversations")
+async def get_incremental_conversations(req: dict):
+    """增量同步会话列表（桩实现）。"""
+    return _ok({"conversations": [], "version": "0"})
+
+
+@router.post("/group/get_recv_group_applicationList")
+async def get_group_application_list(req: dict):
+    """获取群组申请列表（桩实现）。"""
+    return _ok({"applications": [], "total": 0})
+
+
+@router.post("/friend/get_friend_apply_list")
+async def get_friend_apply_list(req: dict):
+    """获取好友申请列表（桩实现）。"""
+    return _ok({"applications": [], "total": 0})
+
+
+@router.post("/third/set_app_badge")
+async def set_app_badge(req: dict):
+    """设置 App 角标（桩实现）。"""
+    return _ok({})
+
+
+@router.post("/friend/get_black_list")
+async def get_black_list(req: dict):
+    """获取黑名单列表（桩实现）。"""
+    return _ok({"blacks": [], "total": 0})

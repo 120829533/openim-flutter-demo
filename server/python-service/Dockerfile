@@ -6,7 +6,9 @@ WORKDIR /app
 # 设置时区与编码环境变量
 ENV TZ=Asia/Shanghai \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+    PIP_NO_CACHE_DIR=1 \
+    PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/ \
+    PIP_TRUSTED_HOST=mirrors.aliyun.com
 
 # 先复制依赖文件，利用 Docker 缓存层
 COPY requirements.txt /app/requirements.txt

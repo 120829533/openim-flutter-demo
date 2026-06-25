@@ -68,7 +68,7 @@ class LoginPage extends StatelessWidget {
   }
 
   Widget _buildInputView() {
-    return Container(
+    return SizedBox(
       height: 240.h,
       width: 300.w,
       child: Column(

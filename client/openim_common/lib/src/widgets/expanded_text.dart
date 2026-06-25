@@ -4,11 +4,11 @@ import 'package:openim_common/openim_common.dart';
 
 class ExpandedText extends StatefulWidget {
   const ExpandedText({
-    Key? key,
+    super.key,
     required this.text,
     this.textStyle,
     this.maxLines = 4,
-  }) : super(key: key);
+  });
   final String text;
   final TextStyle? textStyle;
   final int maxLines;

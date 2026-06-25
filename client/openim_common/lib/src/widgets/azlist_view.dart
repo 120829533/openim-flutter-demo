@@ -5,11 +5,11 @@ import 'package:openim_common/openim_common.dart';
 
 class WrapAzListView<T extends ISuspensionBean> extends StatelessWidget {
   const WrapAzListView({
-    Key? key,
+    super.key,
     required this.data,
     required this.itemCount,
     required this.itemBuilder,
-  }) : super(key: key);
+  });
 
   final List<T> data;
   final int itemCount;

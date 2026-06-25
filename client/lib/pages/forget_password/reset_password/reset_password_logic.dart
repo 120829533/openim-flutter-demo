@@ -32,7 +32,7 @@ class ResetPasswordLogic extends GetxController {
     super.onInit();
   }
 
-  _onChanged() {
+  void _onChanged() {
     enabled.value = pwdCtrl.text.trim().isNotEmpty && pwdAgainCtrl.text.trim().isNotEmpty;
   }
 
@@ -47,7 +47,7 @@ class ResetPasswordLogic extends GetxController {
     return true;
   }
 
-  resetPassword() => LoadingView.singleton.wrap(
+  Future<dynamic> resetPassword() => LoadingView.singleton.wrap(
       asyncFunction: () => Apis.resetPassword(
             areaCode: areaCode,
             phoneNumber: phoneNumber,
@@ -56,7 +56,7 @@ class ResetPasswordLogic extends GetxController {
             verificationCode: verificationCode,
           ));
 
-  confirmTheChanges() async {
+  Future<void> confirmTheChanges() async {
     if (_checkingInput()) {
       await resetPassword();
       IMViews.showToast(StrRes.changedSuccessfully);

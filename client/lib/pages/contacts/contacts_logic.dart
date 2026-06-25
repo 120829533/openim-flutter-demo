@@ -1,6 +1,5 @@
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/contacts/group_profile_panel/group_profile_panel_logic.dart';
 import 'package:openim/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 
@@ -9,7 +8,7 @@ import '../home/home_logic.dart';
 import 'select_contacts/select_contacts_logic.dart';
 
 class ContactsLogic extends GetxController
-    implements ViewUserProfileBridge, SelectContactsBridge, ScanBridge {
+    implements SelectContactsBridge, ScanBridge {
   final imLogic = Get.find<IMController>();
   final homeLogic = Get.find<HomeLogic>();
 
@@ -22,7 +21,6 @@ class ContactsLogic extends GetxController
   @override
   void onInit() {
     PackageBridge.selectContactsBridge = this;
-    PackageBridge.viewUserProfileBridge = this;
     PackageBridge.scanBridge = this;
 
     super.onInit();
@@ -69,7 +67,7 @@ class ContactsLogic extends GetxController
       );
 
   @override
-  viewUserProfile(String userID, String? nickname, String? faceURL, [String? groupID]) =>
+  dynamic viewUserProfile(String userID, String? nickname, String? faceURL, [String? groupID]) =>
       AppNavigator.startUserProfilePane(
         userID: userID,
         nickname: nickname,
@@ -80,7 +78,7 @@ class ContactsLogic extends GetxController
   @override
   scanOutGroupID(String groupID) => AppNavigator.startGroupProfilePanel(
         groupID: groupID,
-        joinGroupMethod: JoinGroupMethod.qrcode,
+        joinGroupMethod: null,
         offAndToNamed: true,
       );
 

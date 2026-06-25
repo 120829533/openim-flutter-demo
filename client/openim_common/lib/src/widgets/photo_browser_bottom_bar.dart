@@ -69,11 +69,10 @@ class PhotoBrowserBottomBar extends StatelessWidget {
             constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, maxHeight: 40.h),
             child: CupertinoButton(
                 padding: EdgeInsets.zero,
-                minSize: 40.h,
-                child: Text(StrRes.cancel, style: Styles.ts_0C1C33_12sp),
                 onPressed: () {
                   Navigator.of(context).pop();
-                }),
+                }, minimumSize: Size(40.h, 40.h),
+                child: Text(StrRes.cancel, style: Styles.ts_0C1C33_12sp)),
           )
         ],
       ),

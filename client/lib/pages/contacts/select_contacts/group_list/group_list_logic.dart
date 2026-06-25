@@ -33,7 +33,7 @@ class SelectContactsFromGroupLogic extends GetxController {
     }
   }
 
-  selectAll() {
+  void selectAll() {
     if (isSelectAll) {
       for (var info in operableList) {
         selectContactsLogic.removeItem(info);

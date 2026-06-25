@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:openim_common/openim_common.dart';
 
 class ChatDisableInputBox extends StatelessWidget {
-  const ChatDisableInputBox({Key? key, this.type = 0}) : super(key: key);
+  const ChatDisableInputBox({super.key, this.type = 0});
 
   final int type;
 

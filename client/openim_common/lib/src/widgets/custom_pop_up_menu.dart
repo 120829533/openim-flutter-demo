@@ -36,7 +36,7 @@ Rect _menuRect = Rect.zero;
 
 class CopyCustomPopupMenu extends StatefulWidget {
   const CopyCustomPopupMenu({
-    Key? key,
+    super.key,
     required this.child,
     required this.menuBuilder,
     required this.pressType,
@@ -50,7 +50,7 @@ class CopyCustomPopupMenu extends StatefulWidget {
     this.position,
     this.menuOnChange,
     this.enablePassEvent = true,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final PressType pressType;
@@ -79,7 +79,7 @@ class _CustomPopupMenuState extends State<CopyCustomPopupMenu> {
   bool _canResponse = true;
   TapDownDetails? _tapDownDetails;
 
-  _showMenu() {
+  void _showMenu() {
     Widget arrow = ClipPath(
       clipper: _ArrowClipper(),
       child: Container(
@@ -172,14 +172,14 @@ class _CustomPopupMenuState extends State<CopyCustomPopupMenu> {
     }
   }
 
-  _hideMenu() {
+  void _hideMenu() {
     if (_overlayEntry != null) {
       _overlayEntry?.remove();
       _overlayEntry = null;
     }
   }
 
-  _updateView() {
+  void _updateView() {
     bool menuIsShowing = _controller?.menuIsShowing ?? false;
     widget.menuOnChange?.call(menuIsShowing);
     if (menuIsShowing) {

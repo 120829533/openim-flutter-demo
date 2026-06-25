@@ -64,7 +64,7 @@ typedef ItemVisibilityChange = void Function(
 
 class ChatItemView extends StatefulWidget {
   const ChatItemView({
-    Key? key,
+    super.key,
     this.mediaItemBuilder,
     this.itemViewBuilder,
     this.customTypeBuilder,
@@ -91,7 +91,7 @@ class ChatItemView extends StatefulWidget {
     this.onFailedToResend,
     this.onClickItemView,
     required this.onTapUserProfile,
-  }) : super(key: key);
+  });
   final ItemViewBuilder? mediaItemBuilder;
   final ItemViewBuilder? itemViewBuilder;
   final CustomTypeBuilder? customTypeBuilder;

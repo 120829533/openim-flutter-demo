@@ -5,10 +5,10 @@ import 'package:sprintf/sprintf.dart';
 
 class NewMessageIndicator extends StatelessWidget {
   const NewMessageIndicator({
-    Key? key,
+    super.key,
     this.newMessageCount = 0,
     this.onTap,
-  }) : super(key: key);
+  });
   final int newMessageCount;
   final Function()? onTap;
 

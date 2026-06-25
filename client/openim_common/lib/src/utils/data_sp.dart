@@ -23,7 +23,7 @@ class DataSp {
 
   DataSp._();
 
-  static init() async {
+  static Future<void> init() async {
     await SpUtil().init();
   }
 

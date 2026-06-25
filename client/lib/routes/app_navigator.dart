@@ -2,12 +2,6 @@ import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
 import 'package:openim_common/openim_common.dart';
 
-import '../pages/chat/group_setup/edit_name/edit_name_logic.dart';
-import '../pages/chat/group_setup/group_member_list/group_member_list_logic.dart';
-import '../pages/contacts/add_by_search/add_by_search_logic.dart';
-import '../pages/contacts/group_profile_panel/group_profile_panel_logic.dart';
-import '../pages/contacts/select_contacts/select_contacts_logic.dart';
-import '../pages/mine/edit_my_info/edit_my_info_logic.dart';
 import 'app_pages.dart';
 
 class AppNavigator {
@@ -66,211 +60,16 @@ class AppNavigator {
           );
   }
 
-  static startAddContactsMethod() => Get.toNamed(AppRoutes.addContactsMethod);
-
-  static startAddContactsBySearch({required SearchType searchType}) => Get.toNamed(
-        AppRoutes.addContactsBySearch,
-        arguments: {"searchType": searchType},
-      );
-
-  static startUserProfilePane({
-    required String userID,
-    String? groupID,
-    String? nickname,
-    String? faceURL,
-    bool offAllWhenDelFriend = false,
-    bool offAndToNamed = false,
-    bool forceCanAdd = false,
-  }) {
-    GetTags.createUserProfileTag();
-
-    final arguments = {
-      'groupID': groupID,
-      'userID': userID,
-      'nickname': nickname,
-      'faceURL': faceURL,
-      'offAllWhenDelFriend': offAllWhenDelFriend,
-      'forceCanAdd': forceCanAdd,
-    };
-
-    return offAndToNamed
-        ? Get.offAndToNamed(AppRoutes.userProfilePanel, arguments: arguments)
-        : Get.toNamed(
-            AppRoutes.userProfilePanel,
-            arguments: arguments,
-            preventDuplicates: false,
-          );
-  }
-
-  static startPersonalInfo({
-    required String userID,
-  }) =>
-      Get.toNamed(AppRoutes.personalInfo, arguments: {
-        'userID': userID,
-      });
-
-  static startFriendSetup({
-    required String userID,
-  }) =>
-      Get.toNamed(AppRoutes.friendSetup, arguments: {
-        'userID': userID,
-      });
-
-  static startSetFriendRemark() => Get.toNamed(AppRoutes.setFriendRemark, arguments: {});
-
-  static startSendVerificationApplication({
-    String? userID,
-    String? groupID,
-    JoinGroupMethod? joinGroupMethod,
-  }) =>
-      Get.toNamed(AppRoutes.sendVerificationApplication, arguments: {
-        'joinGroupMethod': joinGroupMethod,
-        'userID': userID,
-        'groupID': groupID,
-      });
-
-  static startGroupProfilePanel({
-    required String groupID,
-    required JoinGroupMethod joinGroupMethod,
-    bool offAndToNamed = false,
-  }) =>
-      offAndToNamed
-          ? Get.offAndToNamed(AppRoutes.groupProfilePanel, arguments: {
-              'joinGroupMethod': joinGroupMethod,
-              'groupID': groupID,
-            })
-          : Get.toNamed(AppRoutes.groupProfilePanel, arguments: {
-              'joinGroupMethod': joinGroupMethod,
-              'groupID': groupID,
-            });
-
-  static startMyInfo() => Get.toNamed(AppRoutes.myInfo);
-
-  static startEditMyInfo({EditAttr attr = EditAttr.nickname, int? maxLength}) =>
-      Get.toNamed(AppRoutes.editMyInfo, arguments: {'editAttr': attr, 'maxLength': maxLength});
-
-  static startAccountSetup() => Get.toNamed(AppRoutes.accountSetup);
-
-  static startBlacklist() => Get.toNamed(AppRoutes.blacklist);
-
-  static startLanguageSetup() => Get.toNamed(AppRoutes.languageSetup);
-
-  static startAboutUs() => Get.toNamed(AppRoutes.aboutUs);
-
-  static startChatSetup({
+  static Future<dynamic>? startChatSetup({
     required ConversationInfo conversationInfo,
   }) =>
       Get.toNamed(AppRoutes.chatSetup, arguments: {
         'conversationInfo': conversationInfo,
       });
 
-  static startGroupChatSetup({
-    required ConversationInfo conversationInfo,
-  }) =>
-      Get.toNamed(AppRoutes.groupChatSetup, arguments: {
-        'conversationInfo': conversationInfo,
-      });
+  static Future<dynamic>? startGlobalSearch() => Get.toNamed(AppRoutes.globalSearch);
 
-  static startGroupManage({
-    required GroupInfo groupInfo,
-  }) =>
-      Get.toNamed(AppRoutes.groupManage, arguments: {
-        'groupInfo': groupInfo,
-      });
-
-  static startEditGroupName({required EditNameType type, String? faceUrl}) =>
-      Get.toNamed(AppRoutes.editGroupName, arguments: {
-        'type': type,
-        'faceUrl': faceUrl,
-      });
-
-  static Future<T?>? startGroupMemberList<T>({
-    required GroupInfo groupInfo,
-    GroupMemberOpType opType = GroupMemberOpType.view,
-  }) =>
-      Get.toNamed(AppRoutes.groupMemberList, preventDuplicates: false, arguments: {
-        'groupInfo': groupInfo,
-        'opType': opType,
-      });
-
-  static startSearchGroupMember({
-    required GroupInfo groupInfo,
-    GroupMemberOpType opType = GroupMemberOpType.view,
-  }) =>
-      Get.toNamed(AppRoutes.searchGroupMember, arguments: {
-        'groupInfo': groupInfo,
-        'opType': opType,
-      });
-
-  static startGroupQrcode() => Get.toNamed(AppRoutes.groupQrcode);
-
-  static startFriendRequests() => Get.toNamed(AppRoutes.friendRequests);
-
-  static startProcessFriendRequests({
-    required FriendApplicationInfo applicationInfo,
-  }) =>
-      Get.toNamed(AppRoutes.processFriendRequests, arguments: {
-        'applicationInfo': applicationInfo,
-      });
-
-  static startGroupRequests() => Get.toNamed(AppRoutes.groupRequests);
-
-  static startProcessGroupRequests({
-    required GroupApplicationInfo applicationInfo,
-  }) =>
-      Get.toNamed(AppRoutes.processGroupRequests, arguments: {
-        'applicationInfo': applicationInfo,
-      });
-
-  static startFriendList() => Get.toNamed(AppRoutes.friendList);
-
-  static startGroupList() => Get.toNamed(AppRoutes.groupList);
-
-  static startSelectContacts({
-    required SelAction action,
-    List<String>? defaultCheckedIDList,
-    List<dynamic>? checkedList,
-    List<String>? excludeIDList,
-    bool openSelectedSheet = false,
-    String? groupID,
-    String? ex,
-  }) =>
-      Get.toNamed(AppRoutes.selectContacts, arguments: {
-        'action': action,
-        'defaultCheckedIDList': defaultCheckedIDList,
-        'checkedList': IMUtils.convertCheckedListToMap(checkedList),
-        'excludeIDList': excludeIDList,
-        'openSelectedSheet': openSelectedSheet,
-        'groupID': groupID,
-        'ex': ex,
-      });
-
-  static startSelectContactsFromFriends() => Get.toNamed(AppRoutes.selectContactsFromFriends);
-
-  static startSelectContactsFromGroup() => Get.toNamed(AppRoutes.selectContactsFromGroup);
-
-  static startSelectContactsFromSearch() => Get.toNamed(AppRoutes.selectContactsFromSearch);
-
-  static startCreateGroup({
-    List<UserInfo> defaultCheckedList = const [],
-  }) async {
-    final result = await startSelectContacts(
-      action: SelAction.crateGroup,
-      defaultCheckedIDList: defaultCheckedList.map((e) => e.userID!).toList(),
-    );
-    final list = IMUtils.convertSelectContactsResultToUserInfo(result);
-    if (list is List<UserInfo>) {
-      return Get.toNamed(
-        AppRoutes.createGroup,
-        arguments: {'checkedList': list, 'defaultCheckedList': defaultCheckedList},
-      );
-    }
-    return null;
-  }
-
-  static startGlobalSearch() => Get.toNamed(AppRoutes.globalSearch);
-
-  static startExpandChatHistory({
+  static Future<dynamic>? startExpandChatHistory({
     required SearchResultItems searchResultItems,
     required String defaultSearchKey,
   }) =>
@@ -279,7 +78,7 @@ class AppNavigator {
         'defaultSearchKey': defaultSearchKey,
       });
 
-  static startRegister() => Get.toNamed(AppRoutes.register);
+  static Future<dynamic>? startRegister() => Get.toNamed(AppRoutes.register);
 
   static void startVerifyPhone({
     String? phoneNumber,
@@ -334,7 +133,7 @@ class AppNavigator {
         'invitationCode': invitationCode
       });
 
-  static startForgetPassword() => Get.toNamed(AppRoutes.forgetPassword);
+  static Future<dynamic>? startForgetPassword() => Get.toNamed(AppRoutes.forgetPassword);
 
   static void startResetPassword({
     String? phoneNumber,
@@ -352,5 +151,37 @@ class AppNavigator {
         'verificationCode': verificationCode,
       });
 
-  static startSelectContactsFromTag() => Get.toNamed(AppRoutes.selectContactsFromTag);
+  // Stub methods for deleted features
+  static startUserProfilePane({required String userID, String? groupID, String? nickname, String? faceURL, bool offAllWhenDelFriend = false, bool offAndToNamed = false, bool forceCanAdd = false}) {}
+  static startPersonalInfo({required String userID}) {}
+  static startFriendSetup({required String userID}) {}
+  static startSetFriendRemark() {}
+  static startSendVerificationApplication({String? userID, String? groupID, dynamic joinGroupMethod}) {}
+  static startGroupProfilePanel({required String groupID, required dynamic joinGroupMethod, bool offAndToNamed = false}) {}
+  static startMyInfo() {}
+  static startEditMyInfo({dynamic attr, int? maxLength}) {}
+  static startAccountSetup() {}
+  static startBlacklist() {}
+  static startLanguageSetup() {}
+  static startAboutUs() {}
+  static startGroupChatSetup({required ConversationInfo conversationInfo}) {}
+  static startGroupManage({required dynamic groupInfo}) {}
+  static startEditGroupName({required dynamic type, String? faceUrl}) {}
+  static startGroupMemberList({required dynamic groupInfo, dynamic opType}) {}
+  static startSearchGroupMember({required dynamic groupInfo, dynamic opType}) {}
+  static startGroupQrcode() {}
+  static startFriendRequests() {}
+  static startProcessFriendRequests({required dynamic applicationInfo}) {}
+  static startGroupRequests() {}
+  static startProcessGroupRequests({required dynamic applicationInfo}) {}
+  static startFriendList() {}
+  static startGroupList() {}
+  static startSelectContacts({required dynamic action, List<String>? defaultCheckedIDList, List<dynamic>? checkedList, List<String>? excludeIDList, bool openSelectedSheet = false, String? groupID, String? ex}) {}
+  static startSelectContactsFromFriends() {}
+  static startSelectContactsFromGroup() {}
+  static startSelectContactsFromSearch() {}
+  static startCreateGroup({List<UserInfo> defaultCheckedList = const []}) {}
+  static startSelectContactsFromTag() {}
+  static startAddContactsMethod() {}
+  static startAddContactsBySearch({required dynamic searchType}) {}
 }

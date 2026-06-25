@@ -5,9 +5,9 @@ import 'package:openim_common/openim_common.dart';
 
 class RegisterBgView extends StatelessWidget {
   const RegisterBgView({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
   final Widget child;
 
   @override

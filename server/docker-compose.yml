@@ -162,6 +162,18 @@ services:
     networks:
       - openim-net
 
+  # ========== 容器六：Go WebSocket 同步网关（OpenIM gob/gzip 协议） ==========
+  openim-ws-gateway-service:
+    build:
+      context: ./ws-gateway
+      dockerfile: Dockerfile
+    container_name: openim-ws-gateway-service
+    restart: unless-stopped
+    ports:
+      - "18084:8084"
+    networks:
+      - openim-net
+
   # ========== Nginx 反向代理（HTTPS/WSS 接入层，基础设施） ==========
   openim-nginx-service:
     image: nginx:alpine
@@ -172,12 +184,12 @@ services:
       - "${NGINX_HTTPS_PORT}:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      # 如需 HTTPS，挂载证书目录：
-      # - ./nginx/certs:/etc/nginx/certs:ro
+      - /home/bing/nginx-certs:/etc/nginx/certs:ro
     depends_on:
       - openim-python-service
       - openim-java-service
       - openim-file-service
+      - openim-ws-gateway-service
     networks:
       - openim-net
 

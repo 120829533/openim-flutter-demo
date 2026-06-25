@@ -26,7 +26,7 @@ class VoiceRecord {
     this.onDuration,
   }) : _tag = _now();
 
-  start() async {
+  Future<void> start() async {
     if (await _audioRecorder.hasPermission()) {
       var path = (await getApplicationDocumentsDirectory()).path;
       _path = '$path/$_dir/$_tag$_ext';
@@ -49,7 +49,7 @@ class VoiceRecord {
     }
   }
 
-  stop({bool isInterrupt = false}) async {
+  Future<void> stop({bool isInterrupt = false}) async {
     _timer?.cancel();
     _timer = null;
     if (await _audioRecorder.isRecording()) {

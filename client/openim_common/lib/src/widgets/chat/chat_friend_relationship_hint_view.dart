@@ -5,12 +5,12 @@ import 'package:sprintf/sprintf.dart';
 
 class ChatFriendRelationshipAbnormalHintView extends StatelessWidget {
   const ChatFriendRelationshipAbnormalHintView({
-    Key? key,
+    super.key,
     this.blockedByFriend = false,
     this.deletedByFriend = false,
     required this.name,
     this.onTap,
-  }) : super(key: key);
+  });
   final bool blockedByFriend;
   final bool deletedByFriend;
   final String name;

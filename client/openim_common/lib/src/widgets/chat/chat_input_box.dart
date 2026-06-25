@@ -1,6 +1,5 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:openim_common/openim_common.dart';
 
@@ -8,7 +7,7 @@ double kInputBoxMinHeight = 56.h;
 
 class ChatInputBox extends StatefulWidget {
   const ChatInputBox({
-    Key? key,
+    super.key,
     required this.toolbox,
     required this.voiceRecordBar,
     this.controller,
@@ -24,7 +23,7 @@ class ChatInputBox extends StatefulWidget {
     this.onSend,
     this.directionalText,
     this.onCloseDirectional,
-  }) : super(key: key);
+  });
   final FocusNode? focusNode;
   final TextEditingController? controller;
   final TextStyle? style;
@@ -197,18 +196,17 @@ class _ChatInputBoxState extends State<ChatInputBox> /*with TickerProviderStateM
     });
   }
 
-  focus() => FocusScope.of(context).requestFocus(widget.focusNode);
+  void focus() => FocusScope.of(context).requestFocus(widget.focusNode);
 
-  unfocus() => FocusScope.of(context).requestFocus(FocusNode());
+  void unfocus() => FocusScope.of(context).requestFocus(FocusNode());
 }
 
 class _SubView extends StatelessWidget {
   const _SubView({
     this.onClose,
-    this.title,
     this.content,
     this.textSpan,
-  }) : assert(content != null || textSpan != null, 'Either content or textSpan must be provided.');
+  }) : title = null, assert(content != null || textSpan != null, 'Either content or textSpan must be provided.');
   final VoidCallback? onClose;
   final String? title;
   final String? content;

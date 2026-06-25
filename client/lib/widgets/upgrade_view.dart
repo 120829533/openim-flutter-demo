@@ -33,7 +33,7 @@ class UpgradeViewV2 extends StatefulWidget {
 
 class _UpgradeViewV2State extends State<UpgradeViewV2> {
   double _progress = 0.0;
-  bool _showProgress = false;
+  final bool _showProgress = false;
 
   @override
   void initState() {
@@ -160,7 +160,7 @@ class _UpgradeViewV2State extends State<UpgradeViewV2> {
                       percent: _progress,
                       center: "${(_progress * 100).toInt()}%".toText..style = TextStyle(fontSize: 12.sp),
                       linearStrokeCap: LinearStrokeCap.roundAll,
-                      backgroundColor: Colors.grey.withOpacity(0.5),
+                      backgroundColor: Colors.grey.withValues(alpha: 0.5),
                       progressColor: Colors.blueAccent,
                     ),
                   ),

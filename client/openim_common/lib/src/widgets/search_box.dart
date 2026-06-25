@@ -4,7 +4,7 @@ import 'package:openim_common/openim_common.dart';
 
 class SearchBox extends StatefulWidget {
   const SearchBox({
-    Key? key,
+    super.key,
     this.controller,
     this.focusNode,
     this.textStyle,
@@ -22,7 +22,7 @@ class SearchBox extends StatefulWidget {
     this.onSubmitted,
     this.onCleared,
     this.onChanged,
-  }) : super(key: key);
+  });
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final TextStyle? hintStyle;

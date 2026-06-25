@@ -10,17 +10,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
 
 /**
  * WebSocket 核心处理器
@@ -63,6 +70,56 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if (userId != null) {
             session.getAttributes().put(ATTR_USER_ID, userId);
         }
+    }
+
+    /**
+     * 收到二进制消息（Flutter SDK 发送 gzip 压缩的 Protobuf 数据）
+     * 解压后尝试解析
+     */
+    @Override
+    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
+        ByteBuffer buffer = message.getPayload();
+        byte[] bytes = new byte[buffer.remaining()];
+        buffer.get(bytes);
+        log.info("WebSocket 收到二进制消息: sessionId={}, length={} bytes", session.getId(), bytes.length);
+
+        try {
+            // gzip 解压
+            byte[] decompressed = gzipDecompress(bytes);
+            log.info("WebSocket gzip解压后: sessionId={}, length={} bytes, hex={}",
+                    session.getId(), decompressed.length,
+                    bytesToHex(decompressed, 128));
+
+            // 尝试解析为 protobuf 简单结构
+            String userId = (String) session.getAttributes().get(ATTR_USER_ID);
+            if (userId != null) {
+                log.info("WebSocket 用户 {} 已连接，保持会话存活", userId);
+                // 保持连接，不发送响应（SDK 会通过 HTTP 完成同步）
+            }
+        } catch (Exception e) {
+            log.warn("WebSocket 二进制消息处理失败: sessionId={}, error={}",
+                    session.getId(), e.getMessage());
+        }
+    }
+
+    private byte[] gzipDecompress(byte[] compressed) throws IOException {
+        try (GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(compressed));
+             ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = gis.read(buf)) > 0) {
+                bos.write(buf, 0, len);
+            }
+            return bos.toByteArray();
+        }
+    }
+
+    private String bytesToHex(byte[] bytes, int maxLen) {
+        StringBuilder hex = new StringBuilder();
+        for (int i = 0; i < Math.min(bytes.length, maxLen); i++) {
+            hex.append(String.format("%02x ", bytes[i]));
+        }
+        return hex.toString();
     }
 
     /**
@@ -277,10 +334,28 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     /**
      * 从 token 字符串解析用户 ID
-     * 简化实现：token 即为 userId
+     * 尝试解析 JWT payload，失败则返回原始 token
      */
     private String parseUserIdFromTokenStr(String token) {
-        // 生产环境应在此校验 JWT 并提取 userId
+        if (token == null || token.isEmpty()) {
+            return null;
+        }
+        try {
+            // 尝试解析 JWT: header.payload.signature
+            String[] parts = token.split("\\.");
+            if (parts.length >= 2) {
+                byte[] decoded = Base64.getUrlDecoder().decode(parts[1]);
+                String payload = new String(decoded, StandardCharsets.UTF_8);
+                @SuppressWarnings("unchecked")
+                Map<String, Object> claims = objectMapper.readValue(payload, Map.class);
+                Object userId = claims.get("user_id");
+                if (userId != null) {
+                    return userId.toString();
+                }
+            }
+        } catch (Exception e) {
+            log.debug("JWT 解析失败，使用原始 token 作为 userId: {}", e.getMessage());
+        }
         return token;
     }
 

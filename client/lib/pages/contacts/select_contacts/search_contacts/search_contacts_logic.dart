@@ -25,7 +25,7 @@ class SelectContactsFromSearchLogic extends CommonSearchLogic {
     final friendList = result[0] as List<FriendInfo>;
     clearList();
     resultList
-      ..addAll(friendList);
+      .addAll(friendList);
     if (selectContactsLogic.action == SelAction.addMember) {
       var memberInfoList = await getMemberInfo(friendList.map((e) => e.userID!).toList());
       for (var element in memberInfoList) {

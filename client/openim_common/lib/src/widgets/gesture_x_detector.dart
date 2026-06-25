@@ -1,4 +1,4 @@
-library gesture_x_detector;
+library;
 
 import 'dart:async';
 import 'dart:math' as math;
@@ -272,7 +272,7 @@ class _XGestureDetectorState extends State<XGestureDetector> {
     }
   }
 
-  get touchCount => touches.length;
+  int get touchCount => touches.length;
 }
 
 class _Touch {
@@ -281,7 +281,7 @@ class _Touch {
   late Offset currentOffset;
 
   _Touch(this.id, this.startOffset) {
-    this.currentOffset = startOffset;
+    currentOffset = startOffset;
   }
 }
 
@@ -292,12 +292,12 @@ class MoveEvent extends TapEvent {
   final Offset delta;
 
   const MoveEvent(
-    Offset localPos,
-    Offset position,
-    int pointer, {
+    super.localPos,
+    super.position,
+    super.pointer, {
     this.localDelta = const Offset(0, 0),
     this.delta = const Offset(0, 0),
-  }) : super(localPos, position, pointer);
+  });
 }
 
 @immutable
@@ -310,7 +310,7 @@ class TapEvent {
 
   const TapEvent(this.localPos, this.position, this.pointer);
 
-  static from(PointerEvent event) {
+  static TapEvent from(PointerEvent event) {
     return TapEvent(event.localPosition, event.position, event.pointer);
   }
 }

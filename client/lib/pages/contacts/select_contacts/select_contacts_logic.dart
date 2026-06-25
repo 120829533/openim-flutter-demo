@@ -63,7 +63,7 @@ class SelectContactsLogic extends GetxController implements OrganizationMultiSel
   bool get hiddenConversations =>
       action == SelAction.carte || action == SelAction.crateGroup || action == SelAction.addMember;
 
-  _queryConversationList() async {
+  Future<void> _queryConversationList() async {
     if (!hiddenConversations) {
       final cons = Get.find<ConversationLogic>().list;
 
@@ -159,33 +159,33 @@ class SelectContactsLogic extends GetxController implements OrganizationMultiSel
 
   String get checkedStrTips => checkedList.values.map(parseName).join('、');
 
-  viewSelectedContactsList() => Get.bottomSheet(
+  Future<dynamic> viewSelectedContactsList() => Get.bottomSheet(
         SelectedContactsListView(),
         isScrollControlled: true,
       );
 
-  selectFromMyFriend() async {
-    final result = await AppNavigator.startSelectContactsFromFriends();
+  Future<void> selectFromMyFriend() async {
+    final result = AppNavigator.startSelectContactsFromFriends();
     if (null != result) {
       Get.back(result: result);
     }
   }
 
-  selectFromMyGroup() async {
-    final result = await AppNavigator.startSelectContactsFromGroup();
+  Future<void> selectFromMyGroup() async {
+    final result = AppNavigator.startSelectContactsFromGroup();
     if (null != result) {
       Get.back(result: result);
     }
   }
 
-  selectTagGroup() async {
-    final result = await await AppNavigator.startSelectContactsFromTag();
+  Future<void> selectTagGroup() async {
+    final result = AppNavigator.startSelectContactsFromTag();
     if (null != result) {
       Get.back(result: result);
     }
   }
 
-  confirmSelectedList() async {
+  Future<void> confirmSelectedList() async {
     if (action == SelAction.forward || action == SelAction.recommend) {
       final sure = await Get.dialog(ForwardHintDialog(
         title: ex ?? '',
@@ -201,7 +201,7 @@ class SelectContactsLogic extends GetxController implements OrganizationMultiSel
     }
   }
 
-  confirmSelectedItem(dynamic info) async {
+  Future<void> confirmSelectedItem(dynamic info) async {
     if (action == SelAction.carte) {
       final sure = await Get.dialog(CustomDialog(
         title: StrRes.sendCarteConfirmHint,

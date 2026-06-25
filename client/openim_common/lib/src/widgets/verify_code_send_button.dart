@@ -13,11 +13,11 @@ class VerifyCodeSendButton extends StatefulWidget {
   final bool auto;
 
   const VerifyCodeSendButton({
-    Key? key,
+    super.key,
     this.sec = 60,
     this.auto = true,
     required this.onTapCallback,
-  }) : super(key: key);
+  });
 
   @override
   State<VerifyCodeSendButton> createState() => _VerifyCodeSendButtonState();

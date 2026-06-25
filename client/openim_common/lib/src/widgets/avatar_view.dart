@@ -11,7 +11,7 @@ typedef CustomAvatarBuilder = Widget? Function();
 
 class AvatarView extends StatelessWidget {
   const AvatarView({
-    Key? key,
+    super.key,
     this.width,
     this.height,
     this.onTap,
@@ -28,7 +28,7 @@ class AvatarView extends StatelessWidget {
     this.nineGridUrl = const [],
     this.isGroup = false,
     this.showDefaultAvatar = true,
-  }) : super(key: key);
+  });
   final double? width;
   final double? height;
   final Function()? onTap;
@@ -239,7 +239,7 @@ class AvatarView extends StatelessWidget {
 }
 
 class RedDotView extends StatelessWidget {
-  const RedDotView({Key? key}) : super(key: key);
+  const RedDotView({super.key});
 
   @override
   Widget build(BuildContext context) => Container(

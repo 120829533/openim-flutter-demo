@@ -5,10 +5,10 @@ import 'package:sprintf/sprintf.dart';
 
 class ChatReadTagView extends StatelessWidget {
   const ChatReadTagView({
-    Key? key,
+    super.key,
     required this.message,
     this.onTap,
-  }) : super(key: key);
+  });
   final Message message;
   final Function()? onTap;
 

@@ -8,10 +8,11 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.database import close_db, init_db
+from app.database import close_db, execute, fetchone, init_db
 from app.redis_client import close_redis, init_redis
-from app.routers import auth, conversation, i18n, openim_compat, settings as settings_router, user, version
+from app.routers import auth, conversation, i18n, openim_compat, settings as settings_router, user, version, cs_api
 from app.schemas.common import error
+from app.utils.security import hash_password
 
 # 日志配置
 logging.basicConfig(
@@ -36,12 +37,36 @@ app.add_middleware(
 )
 
 
+async def _ensure_cs_agent() -> None:
+    """确保客服账号 cs_agent_001 存在且可登录。"""
+    import hashlib
+
+    agent = await fetchone(
+        "SELECT user_id, password_hash FROM users WHERE user_id = 'cs_agent_001'"
+    )
+    if not agent:
+        logger.warning("客服账号 cs_agent_001 不存在，请先执行数据库迁移")
+        return
+
+    if not agent.get("password_hash"):
+        # Flutter 端发送 MD5(密码)，服务端对 MD5 值做 bcrypt
+        # 默认密码: agent123
+        md5_password = hashlib.md5("agent123".encode()).hexdigest()
+        hashed = hash_password(md5_password)
+        await execute(
+            "UPDATE users SET password_hash = %s WHERE user_id = 'cs_agent_001'",
+            (hashed,),
+        )
+        logger.info("客服账号 cs_agent_001 默认密码已设置: agent123")
+
+
 @app.on_event("startup")
 async def on_startup() -> None:
     """应用启动：初始化数据库连接池与 Redis 客户端。"""
     logger.info("应用启动中...")
     await init_db()
     await init_redis()
+    await _ensure_cs_agent()
     logger.info("应用启动完成")
 
 
@@ -77,3 +102,6 @@ app.include_router(i18n.router, prefix="/api/i18n", tags=["多语言"])
 
 # OpenIM Chat API 兼容层（无前缀，路径与 OpenIM Chat Server 一致）
 app.include_router(openim_compat.router, tags=["OpenIM兼容"])
+
+# 客服系统 API
+app.include_router(cs_api.router, prefix="/api/cs", tags=["客服系统"])

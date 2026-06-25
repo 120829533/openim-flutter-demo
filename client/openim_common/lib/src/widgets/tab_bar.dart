@@ -4,7 +4,7 @@ import 'package:openim_common/openim_common.dart';
 
 class CustomTabBar extends StatelessWidget {
   const CustomTabBar({
-    Key? key,
+    super.key,
     required this.index,
     required this.labels,
     this.selectedStyle,
@@ -15,7 +15,7 @@ class CustomTabBar extends StatelessWidget {
     this.onTabChanged,
     this.height,
     this.showUnderline = false,
-  }) : super(key: key);
+  });
   final int index;
   final List<String> labels;
   final TextStyle? selectedStyle;
